@@ -2,12 +2,29 @@
 
 #include <cmath>
 
-tuple<pair<char, double>, pair<char, double>, pair<char, double> >
-        DubinsPath::getShortestPath() {
+vector<pair<char, double>> DubinsPath::getShortestPath() {
+    vector<vector<pair<char, double>>> paths;
+    vector<pair<char, double>> shortest_path;
+    double cost, shortest_cost;
+    shortest_cost = INFINITY;
 
+    paths = calcPaths();
+    for (const auto& path: paths) {
+        cost = 0;
+        cost = cost;
+        for (auto p: path) {
+            if (p.first == 's') cost += p.second;
+            else cost += p.second * radius;
+        }
+        if (cost < shortest_cost) {
+            shortest_path = path;
+            shortest_cost = cost;
+        }
+    }
+    return shortest_path;
 }
 
-vector<tuple<double, double, double> > DubinsPath::generatePath() {
+vector<vector<double>> DubinsPath::generatePath() {
 
 }
 
@@ -16,41 +33,49 @@ double DubinsPath::mod2Pi(double theta) {
 }
 
 // Calculate the delta in x, y, yaw between the start and end
-tuple<double, double, double> DubinsPath::calcEnd() {
+vector<double> DubinsPath::calcEnd() {
     double ex, ey, yaw, lex, ley, leyaw;
+    vector<double> dend;
 
-    ex = get<0>(end) - get<0>(start);
-    ey = get<1>(end) - get<1>(start);
-    yaw = get<2>(start);
+    ex = end[0] - start[0];
+    ey = end[1] - start[1];
+    yaw = start[2];
 
     lex = (cos(yaw) * ex + sin(yaw) * ey) / radius;
     ley = (-sin(yaw) * ex + cos(yaw) * ey) / radius;
-    leyaw = get<2>(end) - get<2>(start);
-    return make_tuple(lex, ley, leyaw);
+    leyaw = end[2] - start[2];
+
+    dend.push_back(lex);
+    dend.push_back(ley);
+    dend.push_back(leyaw);
+    return dend;
 }
 
 // Calculate the turning center given a pose and direction (l = left, r = right)
-tuple<double, double> DubinsPath::calcTurnCenter(
-        tuple<double, double, double> point, char dir) {
-    double x, y;
-    double ang = get<2>(point);
+vector<double> DubinsPath::calcTurnCenter(
+        vector<double> point, char dir) {
+    double x, y, ang;
+    vector<double> turn_center;
 
+    ang = point[2];
     if (dir == 'l') ang += M_PI / 2.0;
     else if (dir == 'r') ang -= M_PI / 2.0;
 
-    x = get<0>(point) + cos(ang) * radius;
-    y = get<1>(point) * sin(ang) * radius;
-    return make_tuple(x, y);
+    x = point[0] + cos(ang) * radius;
+    y = point[1] * sin(ang) * radius;
+    turn_center.push_back(x);
+    turn_center.push_back(y);
+    return turn_center;
 }
 
 // Compute Dubin's path for L(eft), S(traight), L(eft) sequence
-tuple<pair<char, double>, pair<char, double>, pair<char, double>>
-DubinsPath::calcLSL(tuple<double, double, double> e) {
+vector<pair<char, double>> DubinsPath::calcLSL(vector<double> e) {
     double x, y, yaw, u, t, v;
+    vector<pair<char, double>> dp;
 
-    yaw = get<2>(e);
-    x = get<0>(e) - sin(yaw);
-    y = get<1>(e) - 1 + cos(yaw);
+    yaw = e[2];
+    x = e[0] - sin(yaw);
+    y = e[1] - 1 + cos(yaw);
     u = sqrt(exp2(x) + exp2(y));
     t = mod2Pi(atan2(y, x));
     v = mod2Pi(yaw - t);
@@ -59,120 +84,126 @@ DubinsPath::calcLSL(tuple<double, double, double> e) {
     pair<char, double> second ('s', u * radius);
     pair<char, double> third ('l', v);
 
-    return make_tuple(first, second, third);
+    dp.push_back(first);
+    dp.push_back(second);
+    dp.push_back(third);
+    return dp;
 }
 
 // Compute Dubin's path for R(ight), S(traight), R(ight) sequence
-tuple<pair<char, double>, pair<char, double>, pair<char, double>>
-DubinsPath::calcRSR(tuple<double, double, double> e) {
-    tuple<double, double, double> e_prime;
-    tuple<pair<char, double>, pair<char, double>, pair<char, double>> path;
+vector<pair<char, double>> DubinsPath::calcRSR(vector<double> e) {
+    vector<double> e_prime(e);
+    vector<pair<char, double>> path;
 
-    e_prime = make_tuple(get<0>(e), -get<1>(e), mod2Pi(-get<2>(e)));
+    e_prime[1] = -e[1];
+    e_prime[2] = mod2Pi(-e[2]);
     path = calcLSL(e_prime);
-    get<0>(path).first = 'r';
-    get<2>(path).first = 'r';
+    path[0].first = 'r';
+    path[2].first = 'r';
     return path;
 }
 
 // Compute Dubin's path for L(eft), S(traight), R(ight) sequence
-tuple<pair<char, double>, pair<char, double>, pair<char, double>>
-DubinsPath::calcLSR(tuple<double, double, double> e) {
+vector<pair<char, double>> DubinsPath::calcLSR(vector<double> e) {
     double x, y, yaw, u1_square, t1, u, theta, t, v;
+    pair<char, double> first, second, third;
+    vector<pair<char, double>> dp;
 
-    yaw = get<2>(e);
-    x = get<0>(e) + sin(yaw);
-    y = get<1>(e) - 1 - cos(yaw);
+    yaw = e[2];
+    x = e[0] + sin(yaw);
+    y = e[1] - 1 - cos(yaw);
     u1_square = exp2(x) + exp2(y);
     if (u1_square < 4.0) {
-        pair<char, double> first ('x', 0);
-        pair<char, double> second ('x', 0);
-        pair<char, double> third ('x', 0);
-
-        return make_tuple(first, second, third);
+        return dp;
     }
     t1 = mod2Pi(atan2(y, x));
     u = sqrt(u1_square - 4);
     theta = mod2Pi(atan(2 / u));
     t = mod2Pi(t1 + theta);
     v = mod2Pi(t - yaw);
+    first = make_pair('l', t);
+    second = make_pair('s', u * radius);
+    third = make_pair('r', v);
 
-    pair<char, double> first ('l', t);
-    pair<char, double> second ('s', u * radius);
-    pair<char, double> third ('r', v);
+    dp.push_back(first);
+    dp.push_back(second);
+    dp.push_back(third);
 
-    return make_tuple(first, second, third);
+    return dp;
 }
 
 // Compute Dubin's path for R(ight), S(traight), L(eft) sequence
-tuple<pair<char, double>, pair<char, double>, pair<char, double>>
-DubinsPath::calcRSL(tuple<double, double, double> e) {
-    tuple<double, double, double> e_prime;
-    tuple<pair<char, double>, pair<char, double>, pair<char, double>> path;
+vector<pair<char, double>>
+DubinsPath::calcRSL(vector<double> e) {
+    vector<double> e_prime(e);
+    vector<pair<char, double>> path;
 
-    e_prime = make_tuple(get<0>(e), -get<1>(e), mod2Pi(-get<2>(e)));
+    e_prime[1] = -e[1];
+    e_prime[2] = mod2Pi(-e[2]);
     path = calcLSR(e_prime);
-    if (get<0>(path).first == 'x') {
+    if (path.empty()) {
         return path;
     }
-    get<0>(path).first = 'r';
-    get<2>(path).first = 'l';
+    path[0].first = 'r';
+    path[2].first = 'l';
     return path;
 }
 
 // Compute Dubin's path for L(eft), R(ight), L(eft) sequence
-tuple<pair<char, double>, pair<char, double>, pair<char, double>>
-DubinsPath::calcLRL(tuple<double, double, double> e) {
+vector<pair<char, double>>
+DubinsPath::calcLRL(vector<double> e) {
     double x, y, yaw, u1, t1, theta, t, u, v;
+    pair<char, double> first, second, third;
+    vector<pair<char, double>> dp;
 
-    yaw = get<2>(e);
-    x = get<0>(e) - sin(yaw);
-    y = get<1>(e) - 1 + cos(yaw);
+    yaw = e[2];
+    x = e[0] - sin(yaw);
+    y = e[1] - 1 + cos(yaw);
     u1 = sqrt(exp2(x) + exp2(y));
     if (u1 > 4.0) {
-        pair<char, double> first ('x', 0);
-        pair<char, double> second ('x', 0);
-        pair<char, double> third ('x', 0);
-
-        return make_tuple(first, second, third);
+        return dp;
     }
     t1 = atan2(y, x);
     theta = acos(u1 / 4.0);
     t = mod2Pi(M_PI_2 + t1 + theta);
     u = mod2Pi(M_PI + 2 * theta);
     v = mod2Pi(M_PI_2 - t1 + theta + yaw);
+    first = make_pair('l', t);
+    second = make_pair('r', u * radius);
+    third = make_pair('l', v);
 
-    pair<char, double> first ('l', t);
-    pair<char, double> second ('r', u * radius);
-    pair<char, double> third ('l', v);
+    dp.push_back(first);
+    dp.push_back(second);
+    dp.push_back(third);
 
-    return make_tuple(first, second, third);
+    return dp;
 }
 
 // Compute Dubin's path for R(ight), L(eft), R(ight) sequence
-tuple<pair<char, double>, pair<char, double>, pair<char, double>>
-DubinsPath::calcRLR(tuple<double, double, double> e) {
-    tuple<double, double, double> e_prime;
-    tuple<pair<char, double>, pair<char, double>, pair<char, double>> path;
+vector<pair<char, double>>
+DubinsPath::calcRLR(vector<double> e) {
+    vector<double> e_prime(e);
+    vector<pair<char, double>> path;
 
-    e_prime = make_tuple(get<0>(e), -get<1>(e), mod2Pi(-get<2>(e)));
+    e_prime[1] = -e[1];
+    e_prime[2] = mod2Pi(-e[2]);
     path = calcLRL(e_prime);
-    if (get<0>(path).first == 'x') {
+    if (path.empty()) {
         return path;
     }
-    get<0>(path).first = 'r';
-    get<1>(path).first = 'l';
-    get<2>(path).first = 'r';
+    path[0].first = 'r';
+    path[1].first = 'l';
+    path[2].first = 'r';
     return path;
 }
 
-vector<tuple<pair<char, double>, pair<char, double>, pair<char, double>>>
+vector<vector<pair<char, double>>>
 DubinsPath::calcPaths() {
-    tuple<pair<char, double>, pair<char, double>, pair<char, double>>
+    vector<pair<char, double>>
         lsl, rsr, lsr, rsl, rlr, lrl;
-    vector<tuple<pair<char, double>, pair<char, double>, pair<char, double>>>
+    vector<vector<pair<char, double>>>
         all_paths;
-    tuple<double, double, double> e;
+    vector<double> e;
 
     e = calcEnd();
     lsl = calcLSL(e);
@@ -184,10 +215,10 @@ DubinsPath::calcPaths() {
 
     all_paths.push_back(lsl);
     all_paths.push_back(rsr);
-    if (get<0>(lsr).first != 'x') all_paths.push_back(lsr);
-    if (get<0>(rsl).first != 'x') all_paths.push_back(lsr);
-    if (get<0>(rlr).first != 'x') all_paths.push_back(lsr);
-    if (get<0>(lrl).first != 'x') all_paths.push_back(lsr);
+    if (!lsr.empty()) all_paths.push_back(lsr);
+    if (!rsl.empty()) all_paths.push_back(rsl);
+    if (!rlr.empty()) all_paths.push_back(rlr);
+    if (!lrl.empty()) all_paths.push_back(lrl);
 
     return all_paths;
 }
