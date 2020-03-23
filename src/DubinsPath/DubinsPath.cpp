@@ -1,6 +1,7 @@
 #include "DubinsPath.h"
 
 #include <cmath>
+#include <iostream>
 
 vector<pair<char, double>> DubinsPath::getShortestPath() {
     vector<vector<pair<char, double>>> paths;
@@ -55,7 +56,7 @@ DubinsPath::generatePath(vector<double> s, vector<pair<char, double>> path) {
             if (ang_start < ang_end) step = (0.1 / radius);
             else step = (-0.1 / radius);
             ang = ang_start;
-            while (ang < ang_end) {
+            for (int i = 0; i < (ang_end - ang_start) / step; i+=1) {
                 r_x.push_back(center[0] + cos(ang) * radius);
                 r_y.push_back(center[1] + sin(ang) * radius);
                 r_yaw.push_back(yaw);
@@ -71,7 +72,7 @@ DubinsPath::generatePath(vector<double> s, vector<pair<char, double>> path) {
         cur.clear();
         cur.push_back(r_x.back());
         cur.push_back(r_y.back());
-        cur.push_back(r_yaw.back());
+        cur.push_back(yaw);
     }
     ret.push_back(r_x);
     ret.push_back(r_y);
@@ -108,11 +109,11 @@ vector<double> DubinsPath::calcTurnCenter(vector<double> point, char dir) {
     vector<double> turn_center;
 
     ang = point[2];
-    if (dir == 'l') ang += M_PI / 2.0;
-    else if (dir == 'r') ang -= M_PI / 2.0;
+    if (dir == 'l') ang += M_PI_2;
+    else if (dir == 'r') ang -= M_PI_2;
 
     x = point[0] + cos(ang) * radius;
-    y = point[1] * sin(ang) * radius;
+    y = point[1] + sin(ang) * radius;
     turn_center.push_back(x);
     turn_center.push_back(y);
     return turn_center;

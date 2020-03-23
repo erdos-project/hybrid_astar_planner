@@ -19,6 +19,7 @@ int main() {
 //
     // test dubins
     vector<double> start, end;
+    vector<vector<double>> xy;
     vector<pair<char, double>> path;
     double radius = 4.0;
 
@@ -33,10 +34,17 @@ int main() {
         end.push_back(i * 30 / 180.0 * M_PI);
         DubinsPath dubins (start, end, radius);
         path = dubins.getShortestPath();
-        cout << i << endl;
-        for (auto p: path) {
-            cout << p.first << " " << p.second << " ";
+        xy = dubins.generatePath(start, path);
+        vector<double> x = xy[0];
+        vector<double> y = xy[1];
+        vector<double> yaw = xy[2];
+        cout << x.size() << endl;
+        for (auto xp : x) {
+            cout << xp << ", ";
         }
         cout << endl;
+        for (auto yp : y) {
+            cout << yp << ", ";
+        }
     }
 }
