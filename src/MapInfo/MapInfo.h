@@ -1,13 +1,21 @@
 #ifndef HYBRID_ASTAR_PLANNER_MAPINFO_H
 #define HYBRID_ASTAR_PLANNER_MAPINFO_H
 
-#include <utility>
+#include <vector>
+
+#include "src/Obstacle/Obstacle.h"
+
+using namespace std;
 
 class MapInfo {
-//public:
-//    MapInfo(std::pair<double, double> dimensions, )
-//private:
-
+public:
+    MapInfo(vector<double> dimensions, vector<double> start_,
+            vector<double> end_, vector<Obstacle *> obstacles_);
+    bool isCollision(vector<vector<double>> car_outline);
+private:
+    double width, length;
+    vector<double> start, end;
+    vector<Obstacle *> obstacles;
 };
 
 

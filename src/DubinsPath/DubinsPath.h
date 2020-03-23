@@ -10,8 +10,8 @@ using namespace std;
 class DubinsPath {
 public:
     DubinsPath(vector<double> start_pose, vector<double> end_pose,
-               double radius_): start(std::move(start_pose)),
-               end(std::move(end_pose)), radius(radius_) {}
+               double radius_): start(move(start_pose)),
+               end(move(end_pose)), radius(radius_) {}
     vector<pair<char, double>>
         getShortestPath();
     vector<vector<double>> generatePath(vector<double> s,

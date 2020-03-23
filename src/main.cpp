@@ -1,9 +1,13 @@
 #include <cmath>
 #include <iostream>
+
 #include "src/Car/Car.h"
 #include "src/DubinsPath/DubinsPath.h"
+#include "src/MapInfo/MapInfo.h"
+#include "src/Obstacle/Obstacle.h"
 
 using namespace std;
+using namespace Eigen;
 
 int main() {
     // test car
@@ -19,38 +23,80 @@ int main() {
 
     vector<vector<double>> outline;
     outline = car.getOutline();
+    cout << "Car outline is: \n";
     for (auto point : outline) {
         cout << "X: " << point[0] << " Y: " << point[1] << endl;
     }
+    cout << "Expected: \n";
+    cout << "X: 0.316987 Y: 0.816987\n"
+            "X: 1.18301 Y: 0.316987\n"
+            "X: 2.18301 Y: 2.04904\n"
+            "X: 1.31699 Y: 2.54904\n"
+            "X: 0.316987 Y: 0.816987\n";
 
     // test dubins
-//    vector<double> start, end;
-//    vector<vector<double>> xy;
-//    vector<pair<char, double>> path;
-//    double radius = 4.0;
-//
-//    for (int i = 0; i < 12; i++) {
-//        start.clear();
-//        end.clear();
-//        start.push_back(1.0);
-//        start.push_back(1.0);
-//        start.push_back(300 / 180.0 * M_PI);
-//        end.push_back(-2.0);
-//        end.push_back(0.0);
-//        end.push_back(i * 30 / 180.0 * M_PI);
-//        DubinsPath dubins (start, end, radius);
-//        path = dubins.getShortestPath();
-//        xy = dubins.generatePath(start, path);
-//        vector<double> x = xy[0];
-//        vector<double> y = xy[1];
-//        vector<double> yaw = xy[2];
-//        cout << x.size() << endl;
-//        for (auto xp : x) {
-//            cout << xp << ", ";
-//        }
-//        cout << endl;
-//        for (auto yp : y) {
-//            cout << yp << ", ";
-//        }
-//    }
+    vector<double> start, end;
+    vector<vector<double>> xy;
+    vector<pair<char, double>> path;
+    double radius = 4.0;
+
+    for (int i = 0; i < 12; i++) {
+        start.clear();
+        end.clear();
+        start.push_back(1.0);
+        start.push_back(1.0);
+        start.push_back(300 / 180.0 * M_PI);
+        end.push_back(-2.0);
+        end.push_back(0.0);
+        end.push_back(i * 30 / 180.0 * M_PI);
+        DubinsPath dubins (start, end, radius);
+        path = dubins.getShortestPath();
+        if (i == 0) {
+            cout << "Shortest path is: \n";
+            for (auto p: path) {
+                cout << "Direction: " << p.first << " Distance: " << p.second
+                << endl;
+            }
+            cout << "Expected: \n";
+            cout << "Direction: r Distance: 0.370115\n"
+                    "Direction: s Distance: 3.03569\n"
+                    "Direction: r Distance: 4.86587\n";
+        }
+
+        xy = dubins.generatePath(start, path);
+        vector<double> x = xy[0];
+        vector<double> y = xy[1];
+        vector<double> yaw = xy[2];
+    }
+
+    // test map info
+    vector<double> map_dimensions;
+    vector<Obstacle *> obstacles;
+    Obstacle * o;
+    Vector2f ol, ou;
+    ol.x() = 4.0;
+    ol.y() = 4.0;
+    ou.x() = 5.0;
+    ou.y() = 5.0;
+    o = new Obstacle(ol, ou);
+    obstacles.push_back(o);
+    map_dimensions.push_back(40.0);
+    map_dimensions.push_back(20.0);
+    MapInfo map1 (map_dimensions, start, end, obstacles);
+    bool collision = map1.isCollision(outline);
+    cout << "Expecting collision = 0\nCollision is actually: " << collision
+    << endl;
+
+    delete o;
+    obstacles.clear();
+    ol.x() = 0.5;
+    ol.y() = 0.5;
+    ou.x() = 1.5;
+    ou.y() = 1.5;
+    o = new Obstacle(ol, ou);
+    obstacles.push_back(o);
+    MapInfo map2 (map_dimensions, start, end, obstacles);
+    collision = map2.isCollision(outline);
+    cout << "Expecting collision = 1\nCollision is actually: " << collision
+    << endl;
 }
