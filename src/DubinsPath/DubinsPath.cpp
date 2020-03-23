@@ -11,7 +11,6 @@ vector<pair<char, double>> DubinsPath::getShortestPath() {
     paths = calcPaths();
     for (const auto& path: paths) {
         cost = 0;
-        cost = cost;
         for (auto p: path) {
             if (p.first == 's') cost += p.second;
             else cost += p.second * radius;
@@ -127,7 +126,7 @@ vector<pair<char, double>> DubinsPath::calcLSL(vector<double> e) {
     yaw = e[2];
     x = e[0] - sin(yaw);
     y = e[1] - 1 + cos(yaw);
-    u = sqrt(exp2(x) + exp2(y));
+    u = sqrt(pow(x, 2) + pow(y, 2));
     t = mod2Pi(atan2(y, x));
     v = mod2Pi(yaw - t);
 
@@ -163,7 +162,7 @@ vector<pair<char, double>> DubinsPath::calcLSR(vector<double> e) {
     yaw = e[2];
     x = e[0] + sin(yaw);
     y = e[1] - 1 - cos(yaw);
-    u1_square = exp2(x) + exp2(y);
+    u1_square = pow(x, 2) + pow(y, 2);
     if (u1_square <= 4.0) {
         return dp;
     }
@@ -210,7 +209,7 @@ DubinsPath::calcLRL(vector<double> e) {
     yaw = e[2];
     x = e[0] - sin(yaw);
     y = e[1] - 1 + cos(yaw);
-    u1 = sqrt(exp2(x) + exp2(y));
+    u1 = sqrt(pow(x, 2) + pow(y, 2));
     if (u1 > 4.0) {
         return dp;
     }
@@ -220,7 +219,7 @@ DubinsPath::calcLRL(vector<double> e) {
     u = mod2Pi(M_PI + 2 * theta);
     v = mod2Pi(M_PI_2 - t1 + theta + yaw);
     first = make_pair('l', t);
-    second = make_pair('r', u * radius);
+    second = make_pair('r', u);
     third = make_pair('l', v);
 
     dp.push_back(first);
