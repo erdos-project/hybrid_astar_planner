@@ -24,8 +24,60 @@ vector<pair<char, double>> DubinsPath::getShortestPath() {
     return shortest_path;
 }
 
-vector<vector<double>> DubinsPath::generatePath() {
+vector<vector<double>>
+DubinsPath::generatePath(vector<double> s, vector<pair<char, double>> path) {
+    vector<double> r_x, r_y, r_yaw, cur, center;
+    double yaw, ang, ang_start, ang_end, step;
+    int tick;
+    vector<vector<double>> ret;
 
+    cur = s;
+    yaw = s[2];
+    for (auto p: path) {
+        if (p.first == 's') {
+            if (p.second > 0) {
+                tick = 1;
+            } else {
+                tick = -1;
+            }
+            for (int i = 0; i < 10 * p.second; i+=tick) {
+                r_x.push_back(cur[0] + cos(yaw) * i / 10.0);
+                r_y.push_back(cur[1] + sin(yaw) * i / 10.0);
+                r_yaw.push_back(yaw);
+            }
+            r_x.push_back(cur[0] + cos(yaw) * p.second);
+            r_y.push_back(cur[1] + sin(yaw) * p.second);
+            r_yaw.push_back(yaw);
+        } else {
+            center = calcTurnCenter(cur, p.first);
+            ang_start = atan2(cur[1] - center[1], cur[0] - center[0]);
+            if (p.first == 'l') ang_end = ang_start + p.second;
+            else ang_end = ang_start - p.second;
+            if (ang_start < ang_end) step = (0.1 / radius);
+            else step = (-0.1 / radius);
+            ang = ang_start;
+            while (ang < ang_end) {
+                r_x.push_back(center[0] + cos(ang) * radius);
+                r_y.push_back(center[1] + sin(ang) * radius);
+                r_yaw.push_back(yaw);
+                yaw += step;
+                ang += step;
+            }
+            r_x.push_back(center[0] + cos(ang_end) * radius);
+            r_y.push_back(center[1] + sin(ang_end) * radius);
+            if (p.first == 'l') yaw = cur[2] + p.second;
+            else yaw = cur[2] - p.second;
+            r_yaw.push_back(yaw);
+        }
+        cur.clear();
+        cur.push_back(r_x.back());
+        cur.push_back(r_y.back());
+        cur.push_back(r_yaw.back());
+    }
+    ret.push_back(r_x);
+    ret.push_back(r_y);
+    ret.push_back(r_yaw);
+    return ret;
 }
 
 double DubinsPath::mod2Pi(double theta) {
@@ -52,8 +104,7 @@ vector<double> DubinsPath::calcEnd() {
 }
 
 // Calculate the turning center given a pose and direction (l = left, r = right)
-vector<double> DubinsPath::calcTurnCenter(
-        vector<double> point, char dir) {
+vector<double> DubinsPath::calcTurnCenter(vector<double> point, char dir) {
     double x, y, ang;
     vector<double> turn_center;
 
@@ -113,7 +164,7 @@ vector<pair<char, double>> DubinsPath::calcLSR(vector<double> e) {
     x = e[0] + sin(yaw);
     y = e[1] - 1 - cos(yaw);
     u1_square = exp2(x) + exp2(y);
-    if (u1_square < 4.0) {
+    if (u1_square <= 4.0) {
         return dp;
     }
     t1 = mod2Pi(atan2(y, x));

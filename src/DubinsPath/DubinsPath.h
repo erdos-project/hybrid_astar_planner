@@ -14,7 +14,8 @@ public:
                end(std::move(end_pose)), radius(radius_) {}
     vector<pair<char, double>>
         getShortestPath();
-    vector<vector<double>> generatePath();
+    vector<vector<double>> generatePath(vector<double> s,
+            vector<pair<char, double>> path);
 private:
     vector<double> start, end;
     double radius;
