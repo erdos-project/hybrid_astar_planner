@@ -5,15 +5,16 @@
 #include <tuple>
 #include <utility>
 
+using namespace std;
 class Car {
 public:
-    Car(std::pair<double, double> dimensions,
-            std::tuple<double, double, double> pose_);
-    std::vector<std::pair<double, double>> getOutline();
+    Car(vector<double> dimensions,
+        vector<double> pose_);
+    vector<vector<double>> getOutline();
 private:
     double length;
     double width;
-    std::tuple<double, double, double> pose; // x, y, yaw
+    vector<double> pose; // x, y, yaw
 };
 
 
