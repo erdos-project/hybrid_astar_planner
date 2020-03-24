@@ -65,6 +65,17 @@ bool Obstacle::isSegmentInObstacle(Vector2f &p1, Vector2f &p2)
     return false;
 }
 
+bool Obstacle::isPointNearObstacle(Vector2f &p, double radius) {
+    double dist_to_lower, dist_to_upper;
+    dist_to_lower = sqrt(pow(bbox.first.x() - p.x(), 2) +
+                         pow(bbox.first.y() - p.y(), 2));
+    dist_to_upper = sqrt(pow(bbox.second.x() - p.x(), 2) +
+                         pow(bbox.second.y() - p.y(), 2));
+    if (dist_to_lower <= radius || dist_to_upper <= radius) {
+        return true;
+    }
+    return false;
+}
 double Obstacle::getArea() {
     double length = bbox.second.x() - bbox.first.x();
     double width = bbox.second.y() - bbox.first.y();

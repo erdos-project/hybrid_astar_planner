@@ -3,6 +3,7 @@
 
 #include "src/Car/Car.h"
 #include "src/DubinsPath/DubinsPath.h"
+#include "src/HybridAStar/AStar.h"
 #include "src/MapInfo/MapInfo.h"
 #include "src/Obstacle/Obstacle.h"
 
@@ -99,4 +100,32 @@ int main() {
     collision = map2.isCollision(outline);
     cout << "Expecting collision = 1\nCollision is actually: " << collision
     << endl;
+
+    // test a star
+    vector<double> dims ({60.0, 40.0});
+    vector<double> s ({10.5, 10.1});
+    vector<double> e ({50.2, 30.7});
+    vector<Obstacle *> obs;
+    for (int i = 0; i < 30; i++) {
+        ol.x() = 20;
+        ol.y() = i;
+        ou.x() = 20;
+        ou.y() = i;
+        o = new Obstacle(ol, ou);
+        obs.push_back(o);
+    }
+    for (int i = 0; i < 30; i++) {
+        ol.x() = 40;
+        ol.y() = 40 - i;
+        ou.x() = 40;
+        ou.y() = 40 - i;
+        o = new Obstacle(ol, ou);
+        obs.push_back(o);
+    }
+    MapInfo *map_info = new MapInfo(dims, s, e, obs);
+    AStar planner (map_info);
+    vector<Point> a_star_path = planner.runAStar();
+    cout << "Expecting endpoint = " << e[0] << " " << e[1] << endl;
+    cout << "Actual endpoint = " << a_star_path.front()[0] << " " <<
+        a_star_path.front()[1] << endl;
 }

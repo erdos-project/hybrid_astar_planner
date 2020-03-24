@@ -11,7 +11,7 @@ const float NODE_RADIUS = 0.1;
 // Algo constants
 const float END_DIST_THRESHOLD = 2;
 const float BOT_RADIUS = 1.0;
-const float BOT_CLEARANCE = 1.5 * BOT_RADIUS;
+const float BOT_CLEARANCE = 0;
 const float LANE_WIDTH = 3.0;
 
 #endif // CONSTANTS_H
