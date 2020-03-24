@@ -46,7 +46,9 @@ vector<Point> AStar::reconstructPath(Point p) {
 }
 
 vector<Point> AStar::runAStar() {
-    while (true) {
+    int count = 0;
+    while (count < map_info->width * map_info->length) {
+        count += 1;
         auto it_min = min_element(
             openlist.begin(), openlist.end(),
             [](AStarPoint &p1, AStarPoint &p2) {

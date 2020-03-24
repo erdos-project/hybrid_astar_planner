@@ -15,8 +15,9 @@ public:
     bool isCollision(vector<double> point);
     vector<double> start;
     vector<double> end;
+    double width;
+    double length;
 private:
-    double width, length;
     vector<Obstacle *> obstacles;
 };
 

@@ -128,4 +128,17 @@ int main() {
     cout << "Expecting endpoint = " << e[0] << " " << e[1] << endl;
     cout << "Actual endpoint = " << a_star_path.front()[0] << " " <<
         a_star_path.front()[1] << endl;
+
+    obs.clear();
+    ol.x() = 50.2;
+    ol.y() = 30.7;
+    ou.x() = 50.2;
+    ou.y() = 30.7;
+    o = new Obstacle(ol, ou);
+    obs.push_back(o);
+    map_info = new MapInfo(dims, s, e, obs);
+    planner = AStar(map_info);
+    a_star_path = planner.runAStar();
+    cout << "Expecting path length of 0\n";
+    cout << "Actual path length: " << a_star_path.size() << endl;
 }

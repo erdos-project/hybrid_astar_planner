@@ -76,8 +76,3 @@ bool Obstacle::isPointNearObstacle(Vector2f &p, double radius) {
     }
     return false;
 }
-double Obstacle::getArea() {
-    double length = bbox.second.x() - bbox.first.x();
-    double width = bbox.second.y() - bbox.first.y();
-    return length * width;
-}
