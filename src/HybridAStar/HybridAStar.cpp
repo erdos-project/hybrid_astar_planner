@@ -53,6 +53,7 @@ vector<Pose> HybridAStar::reconstructPath(Pose p) {
     return path;
 }
 
+// calculate the heuristic cost
 double HybridAStar::hCost(Pose &p) {
     double d = AStar::distance(p, map_info->end);
     return d;
@@ -74,7 +75,6 @@ vector<Pose> HybridAStar::runHybridAStar() {
     int count = 0;
     double closest = INFINITY;
     while (count < map_info->width * map_info->length) {
-        cout << closest << endl;
         count += 1;
         auto it_min = min_element(
                 openlist.begin(), openlist.end(),
@@ -92,7 +92,7 @@ vector<Pose> HybridAStar::runHybridAStar() {
             closest = min(closest, AStar::distance(x.pose, map_info->end));
         }
         if (!isCollision(path) &&
-            AStar::distance(x.pose, map_info->end) < sqrt(2)) {
+            AStar::distance(x.pose, map_info->end) < COMPLETION_THRESHOLD) {
             return reconstructPath(x.pose);
         }
 
@@ -105,7 +105,7 @@ vector<Pose> HybridAStar::runHybridAStar() {
                     closelist.begin(), closelist.end(),
                     [&](HybridAStarPoint &p) {
                         return (
-                            AStar::distance(p.pose, y) < sqrt(2)
+                            AStar::distance(p.pose, y) < COMPLETION_THRESHOLD
                         );
                     }) != closelist.end()
                     )

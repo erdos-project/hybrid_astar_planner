@@ -164,9 +164,9 @@ int main() {
     obs.push_back(o);
 
     ol.x() = 28.0;
-    ol.y() = 18.0;
+    ol.y() = 20.0;
     ou.x() = 32.0;
-    ou.y() = 22.0;
+    ou.y() = 24.0;
     o = new Obstacle(ol, ou);
     obs.push_back(o);
 
@@ -182,7 +182,7 @@ int main() {
     MapInfo *map_info = new MapInfo(dimensions, start, end, obs,
             car_dimensions, start);
 
-    HybridAStar hastar (map_info, 10);
+    HybridAStar hastar (map_info, RADIUS);
     auto st = high_resolution_clock::now();
 
     vector<Pose> path = hastar.runHybridAStar();
@@ -191,7 +191,8 @@ int main() {
     cout << "Duration (ms): " << duration.count() << endl;
     cout << "Expected destination: " << end[0] <<  " " << end[1] << " " <<
     end[2] << endl;
-    cout << "Reached: " << path.back()[0] << " " << path.back()[1] <<  path
+    cout << "Reached: " << path.back()[0] << " " << path.back()[1] <<  " "
+    << path
     .back()[2] << endl;
     cout << "[";
     for (auto p : path) {
