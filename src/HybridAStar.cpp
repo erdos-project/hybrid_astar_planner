@@ -89,7 +89,7 @@ double HybridAStar::distance(Point p1, Point p2) {
 // Run Hybrid A Star algorithm
 vector<Pose> HybridAStar::runHybridAStar() {
     int count = 0;
-    while (count < map_info->width * map_info->length) {
+    while (!openlist.empty() && count < map_info->width * map_info->length) {
         count += 1;
 
         // get the lowest total cost node and add it to close list
