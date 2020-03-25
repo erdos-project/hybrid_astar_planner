@@ -5,9 +5,11 @@
 #include "Obstacle.h"
 #include "utils.h"
 
+#include <eigen3/Eigen/Dense>
 #include <vector>
 
 using namespace std;
+using namespace Eigen;
 
 class MapInfo {
 public:
@@ -20,10 +22,12 @@ public:
     void setCarPose(Pose p);
     vector<Point> getCarOutline();
     bool isCollision(vector<Point> car_outline);
-    bool isCollision(Point point);
 private:
     Car car;
     vector<Obstacle *> obstacles;
+    vector<double> origin, bounds;
+    void setStateSpace();
+    bool isOutOfBounds(Vector2f p);
 };
 
 

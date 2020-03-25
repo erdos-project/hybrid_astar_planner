@@ -1,12 +1,15 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 // Hybrid AStar search constants
-const float BOT_CLEARANCE = 0.1;
 const float STEP_SIZE = 3.0;
 const float COMPLETION_THRESHOLD = 1.0;
 const float RAD_STEP = 1;
 const float RAD_UPPER_RANGE = 0;
 const float RAD_LOWER_RANGE = 0;
+
+// Map Info constants
+const float BOT_CLEARANCE = 0.1;
+const float LANE_WIDTH = 10.0;
 
 // Car parameters
 const float RADIUS = 6.0; // turning radius

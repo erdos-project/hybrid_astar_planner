@@ -1,10 +1,7 @@
 #include "include/MapInfo.h"
 #include "include/constants.h"
 
-#include <eigen3/Eigen/Dense>
 #include <utility>
-
-using namespace Eigen;
 
 // Arguments:
 //      dimensions: length, width
@@ -17,9 +14,19 @@ MapInfo::MapInfo(vector<double> dimensions, Pose start_,
                  obstacles(move(obstacles_)) {
     width = dimensions[0];
     length = dimensions[1];
+    setStateSpace();
     vector<double> car_dimensions ({DEFAULT_CAR_LENGTH, DEFAULT_CAR_WIDTH});
     Pose car_pose (start);
     car = Car(car_dimensions, car_pose);
+}
+
+void MapInfo::setStateSpace() {
+    // State space calculated as minimum bounding rectangle with buffer
+    // origin is lower left corner, bounds is width, heigh
+    origin.push_back(min(start[0], end[0]) - LANE_WIDTH); // x
+    origin.push_back(min(start[1], end[1]) - LANE_WIDTH); // y
+    bounds.push_back(max(start[0], end[0]) - origin[0] + LANE_WIDTH);
+    bounds.push_back(max(start[1], end[1]) - origin[1] + LANE_WIDTH);
 }
 
 // Set the pose of the car
@@ -47,6 +54,7 @@ bool MapInfo::isCollision(vector<Point> car_outline) {
         p1.y() = car_outline[i][1];
         p2.x() = car_outline[(i+1) % car_outline.size()][0];
         p2.y() = car_outline[(i+1) % car_outline.size()][1];
+        if (isOutOfBounds(p1)) return true; // p2 will be checked in loop
         for (auto obstacle: obstacles) {
             if (obstacle->isSegmentInObstacle(p1, p2)) return true;
         }
@@ -54,23 +62,10 @@ bool MapInfo::isCollision(vector<Point> car_outline) {
     return false;
 }
 
-// Determine whether the point is near an obstacle
-// Arguments:
-//      point: x, y global location
-// Returns:
-//      bool indicating whether the point is near an obstacle
-bool MapInfo::isCollision(Point point) {
-    if ((point[0] > 0) && (point[0] < width) &&
-        (point[1] > 0) && (point[1] < length))
-    {
-        Vector2f p;
-        p.x() = point[0];
-        p.y() = point[1];
-        for (auto obstacle: obstacles) {
-            if (obstacle->isPointNearObstacle(p, BOT_CLEARANCE)) return true;
-        }
-        return false;
-    }
-    return true;
-
+// Determine if point is outside the bounds
+bool MapInfo::isOutOfBounds(Vector2f p) {
+    return (p.x() < origin[0]) ||
+           (p.x() > origin[0] + bounds[0]) ||
+           (p.y() < origin[1]) ||
+           (p.y() > origin[1] + bounds[1]);
 }
