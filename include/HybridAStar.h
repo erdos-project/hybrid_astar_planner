@@ -1,8 +1,11 @@
 #ifndef HYBRID_ASTAR_PLANNER_HYBRIDASTAR_H
 #define HYBRID_ASTAR_PLANNER_HYBRIDASTAR_H
 
-#include "src/HybridAStar/AStar.h"
-#include "src/DubinsPath/Dubins.h"
+#include "include/Dubins.h"
+#include "MapInfo.h"
+#include "utils.h"
+
+#include <queue>
 
 struct HybridAStarPoint
 {
@@ -10,12 +13,16 @@ struct HybridAStarPoint
     double g, h, f;
     Pose camefrom;
     vector<Pose> path;
+    inline bool operator < (const HybridAStarPoint& p) {
+        return f > p.f;
+    }
 };
 
 class HybridAStar {
 public:
     HybridAStar(MapInfo *map_info_, double radius_);
     vector<Pose> runHybridAStar();
+    static double distance(Point p1, Point p2);
 private:
     vector<HybridAStarPoint> openlist, closelist;
     MapInfo *map_info;
@@ -23,7 +30,7 @@ private:
     double hCost(Pose &p);
     bool isCollision(vector<Pose> path);
     vector<DubinsPath> getNeighbors(Pose &p);
-    vector<Pose> reconstructPath(Pose p);
+    vector<Pose> reconstructPath(Pose &p);
 };
 
 

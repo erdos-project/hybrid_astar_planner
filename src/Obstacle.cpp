@@ -1,4 +1,4 @@
-#include "Obstacle.h"
+#include "include/Obstacle.h"
 
 #include <QLine>
 #include <vector>
@@ -34,7 +34,12 @@ Obstacle::Obstacle(Eigen::Vector2f first_point, Eigen::Vector2f second_point)
     bbox.second.y() = second_point.y();
 }
 
-
+// Determine whether given line segment intersects an obstacle
+// Arguments:
+//      p1: point 1 in the line segment
+//      p2: point 2 in the line segment
+// Returns:
+//      whether given line segment intersects an obstacle
 bool Obstacle::isSegmentInObstacle(Vector2f &p1, Vector2f &p2)
 {
     QLineF line_segment(p1.x(), p1.y(), p2.x(), p2.y());

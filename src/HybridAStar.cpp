@@ -1,9 +1,6 @@
-#include <iostream>
-#include <chrono>
+#include "include/HybridAStar.h"
 
-#include "HybridAStar.h"
-
-using namespace std::chrono;
+#include <algorithm>
 
 HybridAStar::HybridAStar(MapInfo *map_info_, double radius_):
     map_info(map_info_), radius(radius_) {
@@ -14,12 +11,19 @@ HybridAStar::HybridAStar(MapInfo *map_info_, double radius_):
     p.h = d;
     p.f = d;
     openlist.push_back(p);
+    push_heap(openlist.begin(), openlist.end());
 }
 
+// Get the reachable neighbors via Dubin's path
+// Arguments:
+//      p: pose x, y, yaw
+// Returns:
+//      a list of Dubin's paths
 vector<DubinsPath> HybridAStar::getNeighbors(Pose &p) {
     vector<DubinsPath> paths;
-    double rad = RAD_RANGE * radius;
-    while (rad >= radius) {
+    double rad = radius + RAD_UPPER_RANGE;
+    // apply different turning angles / distances to produce neighbors
+    while (rad >= radius - RAD_LOWER_RANGE) {
         rad -= RAD_STEP;
         DubinsPath dpl (1, make_pair('l', STEP_SIZE / rad));
         DubinsPath dpr (1, make_pair('r', STEP_SIZE / rad));
@@ -34,7 +38,12 @@ vector<DubinsPath> HybridAStar::getNeighbors(Pose &p) {
     return paths;
 }
 
-vector<Pose> HybridAStar::reconstructPath(Pose p) {
+// Backwards traverse through the graph to reconstruct a path
+// Arguments:
+//      p: ending pose
+// Returns:
+//      reconstructed path vector containing pose x, y, yaw
+vector<Pose> HybridAStar::reconstructPath(Pose &p) {
     vector<Pose> path;
     while (p != map_info->start) {
         auto it = find_if(
@@ -53,12 +62,13 @@ vector<Pose> HybridAStar::reconstructPath(Pose p) {
     return path;
 }
 
-// calculate the heuristic cost
+// Calculate the heuristic cost to the end goal
 double HybridAStar::hCost(Pose &p) {
-    double d = AStar::distance(p, map_info->end);
+    double d = distance(p, map_info->end);
     return d;
 }
 
+// Determine whether the car will collide with an obstacle along a path
 bool HybridAStar::isCollision(vector<Pose> path) {
     Pose p;
     for (size_t i = 0; i < path.size(); i += 1) {
@@ -71,84 +81,74 @@ bool HybridAStar::isCollision(vector<Pose> path) {
     return false;
 }
 
+// Compute the distance between two points
+double HybridAStar::distance(Point p1, Point p2) {
+    return sqrt(pow(p2[0] - p1[0], 2) + pow(p2[1]- p1[1], 2));
+}
+
+// Run Hybrid A Star algorithm
 vector<Pose> HybridAStar::runHybridAStar() {
     int count = 0;
-    double closest = INFINITY;
     while (count < map_info->width * map_info->length) {
         count += 1;
-        auto it_min = min_element(
-                openlist.begin(), openlist.end(),
-                [](HybridAStarPoint p1, HybridAStarPoint p2) {
-                    return (p1.f < p2.f);
-                }
-        );
-        HybridAStarPoint x = *it_min;
-        openlist.erase(it_min);
+
+        // get the lowest total cost node and add it to close list
+        pop_heap(openlist.begin(), openlist.end());
+        HybridAStarPoint x = openlist.front();
+        openlist.pop_back();
         closelist.push_back(x);
+
+        // construct Dubin's path to end
         Dubins dbp(x.pose, map_info->end, radius);
         DubinsPath shortest_dp = dbp.getShortestPath();
         vector<Pose> path = dbp.generatePath(x.pose, shortest_dp);
-        if (!isCollision(path)) {
-            closest = min(closest, AStar::distance(x.pose, map_info->end));
-        }
         if (!isCollision(path) &&
-            AStar::distance(x.pose, map_info->end) < COMPLETION_THRESHOLD) {
+                distance(x.pose, map_info->end) < COMPLETION_THRESHOLD) {
             return reconstructPath(x.pose);
         }
 
+        // unable to connect to end, explore Dubin's neighbors
         vector<DubinsPath> neighbors = getNeighbors(x.pose);
         for (auto neighbor : neighbors) {
             vector<Pose> neighbor_path =
                 Dubins::generatePath(x.pose, neighbor, radius);
             Pose y = neighbor_path.back();
+
+            // continue if a nearby point was already explored or collision
             if (std::find_if(
                     closelist.begin(), closelist.end(),
                     [&](HybridAStarPoint &p) {
                         return (
-                            AStar::distance(p.pose, y) < COMPLETION_THRESHOLD
+                            distance(p.pose, y) < COMPLETION_THRESHOLD
                         );
-                    }) != closelist.end()
+                    }) != closelist.end() || isCollision(neighbor_path)
                     )
                 continue;
-            if (isCollision(neighbor_path)) continue;
+
+            // update current heuristic cost
             double tentative_g_score = x.g;
             if (neighbor[0].first == 's')
                 tentative_g_score += abs(neighbor[0].second);
             else tentative_g_score += abs(neighbor[0].second * radius);
-            bool tentative_is_better = true;
+
+            // keep the neighbor if it is unexplored
             auto it_y = std::find_if(
                     openlist.begin(), openlist.end(),
                     [&](HybridAStarPoint &p) {
                         return (p.pose == y);
                     }
             );
-            if (it_y == openlist.end())
-                tentative_is_better = true;
-            else if (tentative_g_score < it_y->g)
-                tentative_is_better = true;
-            else
-                tentative_is_better = false;
-            if (tentative_is_better) {
-                if (it_y == openlist.end())
-                {
-                    double d = hCost(y);
-                    HybridAStarPoint y_;
-                    y_.pose.assign(y.begin(), y.end());
-                    y_.g = tentative_g_score;
-                    y_.h = d;
-                    y_.f = y_.g + y_.h;
-                    y_.path.assign(neighbor_path.begin(), neighbor_path.end());
-                    y_.camefrom.assign(x.pose.begin(), x.pose.end());
-                    openlist.push_back(y_);
-                }
-                else
-                {
-                    it_y->g = tentative_g_score;
-                    it_y->f = it_y->g + it_y->h;
-                    it_y->path.assign(neighbor_path.begin(), neighbor_path
-                    .end());
-                    it_y->camefrom.assign(x.pose.begin(), x.pose.end());
-                }
+            if (it_y == openlist.end()) {
+                double d = hCost(y);
+                HybridAStarPoint y_;
+                y_.pose.assign(y.begin(), y.end());
+                y_.g = tentative_g_score;
+                y_.h = d;
+                y_.f = y_.g + y_.h;
+                y_.path.assign(neighbor_path.begin(), neighbor_path.end());
+                y_.camefrom.assign(x.pose.begin(), x.pose.end());
+                openlist.push_back(y_);
+                push_heap(openlist.begin(), openlist.end());
             }
         }
     }

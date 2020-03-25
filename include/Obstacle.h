@@ -1,9 +1,9 @@
 #ifndef HYBRID_ASTAR_PLANNER_OBSTACLE_H
 #define HYBRID_ASTAR_PLANNER_OBSTACLE_H
 
-#include <eigen3/Eigen/Dense>
+#include "constants.h"
 
-#include "src/constants.h"
+#include <eigen3/Eigen/Dense>
 
 class Obstacle {
 public:

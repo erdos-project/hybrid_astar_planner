@@ -1,4 +1,4 @@
-#include "Car.h"
+#include "include/Car.h"
 
 #include <cmath>
 
@@ -12,10 +12,12 @@ Car::Car(vector<double> dimensions,
     width = dimensions[1];
 }
 
+// Set the pose of the car
 void Car::setPose(Pose p) {
     pose = p;
 }
 
+// Compute the outline of the car given its current pose
 vector<Point> Car::getOutline() {
     double x, y, yaw;
     double tail_x, tail_y, head_x, head_y;

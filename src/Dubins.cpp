@@ -1,15 +1,9 @@
-#include "Dubins.h"
-#include <ctime>
-#include <cstdio>
+#include "include/Dubins.h"
+
 #include <cmath>
-#include <iostream>
-#include <chrono>
 
-using namespace std;
-using namespace std::chrono;
-
+// Find the shortest Dubin's path from the start to end
 DubinsPath Dubins::getShortestPath() {
-    auto start = high_resolution_clock::now();
     vector<DubinsPath> paths;
     DubinsPath shortest_path;
     double cost, shortest_cost;
@@ -27,18 +21,22 @@ DubinsPath Dubins::getShortestPath() {
             shortest_cost = cost;
         }
     }
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
-//    cout << "Duration (ms): " << duration.count() << endl;
+
     return shortest_path;
 }
 
+
+// Construct the x, y, yaw path given a starting pose, Dubin's path
+// Arguments:
+//      s: initial pose x, y, yaw
+//      path: Dubin's path to construct
+// Returns:
+//      vector of pose x, y, yaw
 vector<Pose> Dubins::generatePath(Pose s, DubinsPath path) {
     vector<double> r_x, r_y, r_yaw, cur, center;
     double yaw, ang, ang_start, ang_end, step;
     int tick;
     vector<Pose> ret;
-    auto start = high_resolution_clock::now();
     cur = s;
     yaw = s[2];
     for (auto p: path) {
@@ -86,11 +84,16 @@ vector<Pose> Dubins::generatePath(Pose s, DubinsPath path) {
         Pose p({r_x[i], r_y[i], r_yaw[i]});
         ret.push_back(p);
     }
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
     return ret;
 }
 
+// Construct the x, y, yaw path given a starting pose, Dubin's path and radius
+// Arguments:
+//      s: initial pose x, y, yaw
+//      path: Dubin's path to construct
+//      radius: turning radius of vehicle
+// Returns:
+//      vector of pose x, y, yaw
 vector<Pose> Dubins::generatePath(Pose s, DubinsPath path, double radius) {
     vector<double> r_x, r_y, r_yaw, cur, center;
     double yaw, ang, ang_start, ang_end, step;
@@ -147,6 +150,7 @@ vector<Pose> Dubins::generatePath(Pose s, DubinsPath path, double radius) {
     return ret;
 }
 
+// Mod theta (radians) to range [0, 2 PI)
 double Dubins::mod2Pi(double theta) {
     return theta - 2.0 * M_PI * floor(theta / 2.0 / M_PI);
 }
@@ -296,6 +300,7 @@ DubinsPath Dubins::calcRLR(Pose e) {
     return path;
 }
 
+// Compute all possible Dubin's Paths from start to end
 vector<DubinsPath> Dubins::calcPaths() {
     DubinsPath
         lsl, rsr, lsr, rsl, rlr, lrl;

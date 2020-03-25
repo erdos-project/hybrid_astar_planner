@@ -1,11 +1,10 @@
 #ifndef HYBRID_ASTAR_PLANNER_CAR_H
 #define HYBRID_ASTAR_PLANNER_CAR_H
 
+#include "utils.h"
+
 #include <vector>
 #include <tuple>
-#include <utility>
-
-#include "src/utils.h"
 
 using namespace std;
 class Car {
