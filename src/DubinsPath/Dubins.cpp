@@ -1,11 +1,10 @@
-#include "DubinsPath.h"
+#include "Dubins.h"
 
 #include <cmath>
-#include <iostream>
 
-vector<pair<char, double>> DubinsPath::getShortestPath() {
-    vector<vector<pair<char, double>>> paths;
-    vector<pair<char, double>> shortest_path;
+DubinsPath Dubins::getShortestPath() {
+    vector<DubinsPath> paths;
+    DubinsPath shortest_path;
     double cost, shortest_cost;
     shortest_cost = INFINITY;
 
@@ -24,12 +23,11 @@ vector<pair<char, double>> DubinsPath::getShortestPath() {
     return shortest_path;
 }
 
-vector<vector<double>>
-DubinsPath::generatePath(vector<double> s, vector<pair<char, double>> path) {
+vector<Pose> Dubins::generatePath(Pose s, DubinsPath path) {
     vector<double> r_x, r_y, r_yaw, cur, center;
     double yaw, ang, ang_start, ang_end, step;
     int tick;
-    vector<vector<double>> ret;
+    vector<Pose> ret;
 
     cur = s;
     yaw = s[2];
@@ -49,7 +47,7 @@ DubinsPath::generatePath(vector<double> s, vector<pair<char, double>> path) {
             r_y.push_back(cur[1] + sin(yaw) * p.second);
             r_yaw.push_back(yaw);
         } else {
-            center = calcTurnCenter(cur, p.first);
+            center = calcTurnCenter(cur, p.first, radius);
             ang_start = atan2(cur[1] - center[1], cur[0] - center[0]);
             if (p.first == 'l') ang_end = ang_start + p.second;
             else ang_end = ang_start - p.second;
@@ -74,18 +72,75 @@ DubinsPath::generatePath(vector<double> s, vector<pair<char, double>> path) {
         cur.push_back(r_y.back());
         cur.push_back(yaw);
     }
-    ret.push_back(r_x);
-    ret.push_back(r_y);
-    ret.push_back(r_yaw);
+    for (size_t i = 0; i < r_x.size(); i++) {
+        Pose p({r_x[i], r_y[i], r_yaw[i]});
+        ret.push_back(p);
+    }
     return ret;
 }
 
-double DubinsPath::mod2Pi(double theta) {
+vector<Pose> Dubins::generatePath(Pose s, DubinsPath path, double radius) {
+    vector<double> r_x, r_y, r_yaw, cur, center;
+    double yaw, ang, ang_start, ang_end, step;
+    int tick;
+    vector<Pose> ret;
+
+    cur = s;
+    yaw = s[2];
+    for (auto p: path) {
+        if (p.first == 's') {
+            if (p.second > 0) {
+                tick = 1;
+            } else {
+                tick = -1;
+            }
+            for (int i = 0; i < 10 * p.second; i+=tick) {
+                r_x.push_back(cur[0] + cos(yaw) * i / 10.0);
+                r_y.push_back(cur[1] + sin(yaw) * i / 10.0);
+                r_yaw.push_back(yaw);
+            }
+            r_x.push_back(cur[0] + cos(yaw) * p.second);
+            r_y.push_back(cur[1] + sin(yaw) * p.second);
+            r_yaw.push_back(yaw);
+        } else {
+            center = calcTurnCenter(cur, p.first, radius);
+            ang_start = atan2(cur[1] - center[1], cur[0] - center[0]);
+            if (p.first == 'l') ang_end = ang_start + p.second;
+            else ang_end = ang_start - p.second;
+            if (ang_start < ang_end) step = (0.1 / radius);
+            else step = (-0.1 / radius);
+            ang = ang_start;
+            for (int i = 0; i < (ang_end - ang_start) / step; i+=1) {
+                r_x.push_back(center[0] + cos(ang) * radius);
+                r_y.push_back(center[1] + sin(ang) * radius);
+                r_yaw.push_back(yaw);
+                yaw += step;
+                ang += step;
+            }
+            r_x.push_back(center[0] + cos(ang_end) * radius);
+            r_y.push_back(center[1] + sin(ang_end) * radius);
+            if (p.first == 'l') yaw = cur[2] + p.second;
+            else yaw = cur[2] - p.second;
+            r_yaw.push_back(yaw);
+        }
+        cur.clear();
+        cur.push_back(r_x.back());
+        cur.push_back(r_y.back());
+        cur.push_back(yaw);
+    }
+    for (size_t i = 0; i < r_x.size(); i++) {
+        Pose p({r_x[i], r_y[i], r_yaw[i]});
+        ret.push_back(p);
+    }
+    return ret;
+}
+
+double Dubins::mod2Pi(double theta) {
     return theta - 2.0 * M_PI * floor(theta / 2.0 / M_PI);
 }
 
 // Calculate the delta in x, y, yaw between the start and end
-vector<double> DubinsPath::calcEnd() {
+Pose Dubins::calcEnd() {
     double ex, ey, yaw, lex, ley, leyaw;
     vector<double> dend;
 
@@ -103,26 +158,10 @@ vector<double> DubinsPath::calcEnd() {
     return dend;
 }
 
-// Calculate the turning center given a pose and direction (l = left, r = right)
-vector<double> DubinsPath::calcTurnCenter(vector<double> point, char dir) {
-    double x, y, ang;
-    vector<double> turn_center;
-
-    ang = point[2];
-    if (dir == 'l') ang += M_PI_2;
-    else if (dir == 'r') ang -= M_PI_2;
-
-    x = point[0] + cos(ang) * radius;
-    y = point[1] + sin(ang) * radius;
-    turn_center.push_back(x);
-    turn_center.push_back(y);
-    return turn_center;
-}
-
 // Compute Dubin's path for L(eft), S(traight), L(eft) sequence
-vector<pair<char, double>> DubinsPath::calcLSL(vector<double> e) {
+DubinsPath Dubins::calcLSL(Pose e) {
     double x, y, yaw, u, t, v;
-    vector<pair<char, double>> dp;
+    DubinsPath dp;
 
     yaw = e[2];
     x = e[0] - sin(yaw);
@@ -131,9 +170,9 @@ vector<pair<char, double>> DubinsPath::calcLSL(vector<double> e) {
     t = mod2Pi(atan2(y, x));
     v = mod2Pi(yaw - t);
 
-    pair<char, double> first ('l', t);
-    pair<char, double> second ('s', u * radius);
-    pair<char, double> third ('l', v);
+    DubinsPoint first ('l', t);
+    DubinsPoint second ('s', u * radius);
+    DubinsPoint third ('l', v);
 
     dp.push_back(first);
     dp.push_back(second);
@@ -142,9 +181,9 @@ vector<pair<char, double>> DubinsPath::calcLSL(vector<double> e) {
 }
 
 // Compute Dubin's path for R(ight), S(traight), R(ight) sequence
-vector<pair<char, double>> DubinsPath::calcRSR(vector<double> e) {
-    vector<double> e_prime(e);
-    vector<pair<char, double>> path;
+DubinsPath Dubins::calcRSR(Pose e) {
+    Pose e_prime(e);
+    DubinsPath path;
 
     e_prime[1] = -e[1];
     e_prime[2] = mod2Pi(-e[2]);
@@ -155,10 +194,10 @@ vector<pair<char, double>> DubinsPath::calcRSR(vector<double> e) {
 }
 
 // Compute Dubin's path for L(eft), S(traight), R(ight) sequence
-vector<pair<char, double>> DubinsPath::calcLSR(vector<double> e) {
+DubinsPath Dubins::calcLSR(Pose e) {
     double x, y, yaw, u1_square, t1, u, theta, t, v;
-    pair<char, double> first, second, third;
-    vector<pair<char, double>> dp;
+    DubinsPoint first, second, third;
+    DubinsPath dp;
 
     yaw = e[2];
     x = e[0] + sin(yaw);
@@ -184,10 +223,9 @@ vector<pair<char, double>> DubinsPath::calcLSR(vector<double> e) {
 }
 
 // Compute Dubin's path for R(ight), S(traight), L(eft) sequence
-vector<pair<char, double>>
-DubinsPath::calcRSL(vector<double> e) {
-    vector<double> e_prime(e);
-    vector<pair<char, double>> path;
+DubinsPath Dubins::calcRSL(Pose e) {
+    Pose e_prime(e);
+    DubinsPath path;
 
     e_prime[1] = -e[1];
     e_prime[2] = mod2Pi(-e[2]);
@@ -201,11 +239,10 @@ DubinsPath::calcRSL(vector<double> e) {
 }
 
 // Compute Dubin's path for L(eft), R(ight), L(eft) sequence
-vector<pair<char, double>>
-DubinsPath::calcLRL(vector<double> e) {
+DubinsPath Dubins::calcLRL(Pose e) {
     double x, y, yaw, u1, t1, theta, t, u, v;
-    pair<char, double> first, second, third;
-    vector<pair<char, double>> dp;
+    DubinsPoint first, second, third;
+    DubinsPath dp;
 
     yaw = e[2];
     x = e[0] - sin(yaw);
@@ -231,10 +268,9 @@ DubinsPath::calcLRL(vector<double> e) {
 }
 
 // Compute Dubin's path for R(ight), L(eft), R(ight) sequence
-vector<pair<char, double>>
-DubinsPath::calcRLR(vector<double> e) {
-    vector<double> e_prime(e);
-    vector<pair<char, double>> path;
+DubinsPath Dubins::calcRLR(Pose e) {
+    Pose e_prime(e);
+    DubinsPath path;
 
     e_prime[1] = -e[1];
     e_prime[2] = mod2Pi(-e[2]);
@@ -248,13 +284,12 @@ DubinsPath::calcRLR(vector<double> e) {
     return path;
 }
 
-vector<vector<pair<char, double>>>
-DubinsPath::calcPaths() {
-    vector<pair<char, double>>
+vector<DubinsPath> Dubins::calcPaths() {
+    DubinsPath
         lsl, rsr, lsr, rsl, rlr, lrl;
-    vector<vector<pair<char, double>>>
+    vector<DubinsPath>
         all_paths;
-    vector<double> e;
+    Pose e;
 
     e = calcEnd();
     lsl = calcLSL(e);

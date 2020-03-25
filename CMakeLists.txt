@@ -28,10 +28,11 @@ include_directories(
 )
 
 add_executable(hybrid_astar_planner
-        LICENSE src/main.cpp src/HybridAStar/AStar.cpp src/HybridAStar/AStar.h
+        LICENSE src/main.cpp src/utils.h src/HybridAStar/AStar.cpp
+        src/HybridAStar/AStar.h
         src/HybridAStar/HybridAStar.cpp src/HybridAStar/HybridAStar.h
-        src/HybridAStar/HybridAStarWrapper.cpp src/DubinsPath/DubinsPath.cpp
-        src/DubinsPath/DubinsPath.h src/MapInfo/MapInfo.cpp
+        src/HybridAStar/HybridAStarWrapper.cpp src/DubinsPath/Dubins.cpp
+        src/DubinsPath/Dubins.h src/MapInfo/MapInfo.cpp
         src/MapInfo/MapInfo.h src/Car/Car.cpp src/Car/Car.h
-        src/Obstacle/Obstacle.cpp src/Obstacle/Obstacle.h)
+        src/Obstacle/Obstacle.cpp src/Obstacle/Obstacle.h )
 target_link_libraries(hybrid_astar_planner Qt5::Widgets Qt5::Gui)

@@ -4,8 +4,8 @@
 #include <vector>
 
 #include "src/MapInfo/MapInfo.h"
+#include "src/utils.h"
 
-typedef vector<double> Point;
 struct AStarPoint
 {
     Point point;
@@ -16,10 +16,10 @@ class AStar {
 public:
     AStar(MapInfo *map_info_);
     vector<Point> runAStar();
+    static double distance(Point p1, Point p2);
 private:
     vector<AStarPoint> openlist, closelist;
     MapInfo *map_info;
-    static double distance(Point &p1, Point &p2);
     vector<Point> getNeighbors(Point &p);
     vector<Point> reconstructPath(Point p);
 };

@@ -1,4 +1,5 @@
 #include <iostream>
+
 #include "AStar.h"
 
 AStar::AStar(MapInfo *map_info_):
@@ -11,7 +12,7 @@ AStar::AStar(MapInfo *map_info_):
     openlist.push_back(p);
 }
 
-double AStar::distance(Point &p1, Point &p2) {
+double AStar::distance(Point p1, Point p2) {
     return sqrt(pow(p2[0] - p1[0], 2) + pow(p2[1]- p1[1], 2));
 }
 
@@ -42,6 +43,7 @@ vector<Point> AStar::reconstructPath(Point p) {
         p = it->camefrom;
     }
     path.push_back(map_info->start);
+    reverse(path.begin(), path.end());
     return path;
 }
 
@@ -106,4 +108,6 @@ vector<Point> AStar::runAStar() {
             }
         }
     }
+    vector<Point> ret;
+    return ret;
 }

@@ -5,16 +5,20 @@
 #include <tuple>
 #include <utility>
 
+#include "src/utils.h"
+
 using namespace std;
 class Car {
 public:
+    Car();
     Car(vector<double> dimensions,
-        vector<double> pose_);
-    vector<vector<double>> getOutline();
+        Pose pose_);
+    void setPose(Pose p);
+    vector<Point> getOutline();
 private:
     double length;
     double width;
-    vector<double> pose; // x, y, yaw
+    Pose pose; // x, y, yaw
 };
 
 

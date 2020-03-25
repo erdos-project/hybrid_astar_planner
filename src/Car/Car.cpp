@@ -4,13 +4,19 @@
 
 using namespace std;
 
+Car::Car() {}
+
 Car::Car(vector<double> dimensions,
-         vector<double> pose_): pose(pose_) {
+         Pose pose_): pose(pose_) {
     length = dimensions[0];
     width = dimensions[1];
 }
 
-vector<vector<double>> Car::getOutline() {
+void Car::setPose(Pose p) {
+    pose = p;
+}
+
+vector<Point> Car::getOutline() {
     double x, y, yaw;
     double tail_x, tail_y, head_x, head_y;
     vector<double> tail_l, tail_r;
@@ -34,7 +40,7 @@ vector<vector<double>> Car::getOutline() {
     head_r.push_back(head_x + cos(yaw - M_PI_2) * width / 2.0);
     head_r.push_back(head_y + sin(yaw - M_PI_2) * width / 2.0);
 
-    vector<vector<double>> outline;
+    vector<Point> outline;
     outline.push_back(tail_l);
     outline.push_back(tail_r);
     outline.push_back(head_r);
@@ -42,3 +48,4 @@ vector<vector<double>> Car::getOutline() {
     outline.push_back(tail_l);
     return outline;
 }
+
