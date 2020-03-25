@@ -88,7 +88,6 @@ vector<Pose> Dubins::generatePath(Pose s, DubinsPath path) {
     }
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
-    cout << "Duration (ms): " << duration.count() << endl;
     return ret;
 }
 

@@ -88,7 +88,9 @@ vector<Pose> HybridAStar::runHybridAStar() {
         Dubins dbp(x.pose, map_info->end, radius);
         DubinsPath shortest_dp = dbp.getShortestPath();
         vector<Pose> path = dbp.generatePath(x.pose, shortest_dp);
-        closest = min(closest, AStar::distance(x.pose, map_info->end));
+        if (!isCollision(path)) {
+            closest = min(closest, AStar::distance(x.pose, map_info->end));
+        }
         if (!isCollision(path) &&
             AStar::distance(x.pose, map_info->end) < sqrt(2)) {
             return reconstructPath(x.pose);
