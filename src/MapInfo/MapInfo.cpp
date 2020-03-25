@@ -47,6 +47,9 @@ bool MapInfo::isCollision(vector<Point> car_outline) {
         p2.y() = car_outline[(i+1) % car_outline.size()][1];
         for (auto obstacle: obstacles) {
             if (obstacle->isSegmentInObstacle(p1, p2)) {
+                cout << obstacle->bbox.first.x() << " " << obstacle->bbox
+                .first.y() << " " << obstacle->bbox.second.x() << " " <<
+                obstacle->bbox.second.y() << endl;
                 return true;
             }
         }

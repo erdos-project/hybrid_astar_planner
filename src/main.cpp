@@ -1,5 +1,6 @@
 #include <cmath>
 #include <iostream>
+#include <chrono>
 
 #include "src/utils.h"
 #include "src/Car/Car.h"
@@ -11,6 +12,7 @@
 
 using namespace std;
 using namespace Eigen;
+using namespace chrono;
 
 int main() {
     // test car
@@ -161,13 +163,34 @@ int main() {
     o = new Obstacle(ol, ou);
     obs.push_back(o);
 
+    ol.x() = 28.0;
+    ol.y() = 18.0;
+    ou.x() = 32.0;
+    ou.y() = 22.0;
+    o = new Obstacle(ol, ou);
+    obs.push_back(o);
+
+    for (int i = 0; i < 60; i+=1) {
+        ol.x() = i;
+        ol.y() = 12;
+        ou.x() = i;
+        ou.y() = 12;
+        o = new Obstacle(ol, ou);
+        obs.push_back(o);
+    }
+
     MapInfo *map_info = new MapInfo(dimensions, start, end, obs,
             car_dimensions, start);
 
-    HybridAStar hastar (map_info, 10.0);
+    HybridAStar hastar (map_info, 10);
+    auto st = high_resolution_clock::now();
+
     vector<Pose> path = hastar.runHybridAStar();
-    cout << "Expected destination: " << end[0] <<  " " << end[1] << end[2] <<
-    endl;
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - st);
+    cout << "Duration (ms): " << duration.count() << endl;
+    cout << "Expected destination: " << end[0] <<  " " << end[1] << " " <<
+    end[2] << endl;
     cout << "Reached: " << path.back()[0] << " " << path.back()[1] <<  path
     .back()[2] << endl;
     cout << "[";

@@ -1,8 +1,15 @@
 #include "Dubins.h"
-
+#include <ctime>
+#include <cstdio>
 #include <cmath>
+#include <iostream>
+#include <chrono>
+
+using namespace std;
+using namespace std::chrono;
 
 DubinsPath Dubins::getShortestPath() {
+    auto start = high_resolution_clock::now();
     vector<DubinsPath> paths;
     DubinsPath shortest_path;
     double cost, shortest_cost;
@@ -20,6 +27,9 @@ DubinsPath Dubins::getShortestPath() {
             shortest_cost = cost;
         }
     }
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+//    cout << "Duration (ms): " << duration.count() << endl;
     return shortest_path;
 }
 
@@ -28,7 +38,7 @@ vector<Pose> Dubins::generatePath(Pose s, DubinsPath path) {
     double yaw, ang, ang_start, ang_end, step;
     int tick;
     vector<Pose> ret;
-
+    auto start = high_resolution_clock::now();
     cur = s;
     yaw = s[2];
     for (auto p: path) {
@@ -38,9 +48,9 @@ vector<Pose> Dubins::generatePath(Pose s, DubinsPath path) {
             } else {
                 tick = -1;
             }
-            for (int i = 0; i < 10 * p.second; i+=tick) {
-                r_x.push_back(cur[0] + cos(yaw) * i / 10.0);
-                r_y.push_back(cur[1] + sin(yaw) * i / 10.0);
+            for (int i = 0; i < p.second; i+=tick) {
+                r_x.push_back(cur[0] + cos(yaw) * i);
+                r_y.push_back(cur[1] + sin(yaw) * i);
                 r_yaw.push_back(yaw);
             }
             r_x.push_back(cur[0] + cos(yaw) * p.second);
@@ -51,8 +61,8 @@ vector<Pose> Dubins::generatePath(Pose s, DubinsPath path) {
             ang_start = atan2(cur[1] - center[1], cur[0] - center[0]);
             if (p.first == 'l') ang_end = ang_start + p.second;
             else ang_end = ang_start - p.second;
-            if (ang_start < ang_end) step = (0.1 / radius);
-            else step = (-0.1 / radius);
+            if (ang_start < ang_end) step = (1 / radius);
+            else step = (-1 / radius);
             ang = ang_start;
             for (int i = 0; i < (ang_end - ang_start) / step; i+=1) {
                 r_x.push_back(center[0] + cos(ang) * radius);
@@ -76,6 +86,9 @@ vector<Pose> Dubins::generatePath(Pose s, DubinsPath path) {
         Pose p({r_x[i], r_y[i], r_yaw[i]});
         ret.push_back(p);
     }
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    cout << "Duration (ms): " << duration.count() << endl;
     return ret;
 }
 
@@ -94,9 +107,9 @@ vector<Pose> Dubins::generatePath(Pose s, DubinsPath path, double radius) {
             } else {
                 tick = -1;
             }
-            for (int i = 0; i < 10 * p.second; i+=tick) {
-                r_x.push_back(cur[0] + cos(yaw) * i / 10.0);
-                r_y.push_back(cur[1] + sin(yaw) * i / 10.0);
+            for (int i = 0; i < p.second; i+=tick) {
+                r_x.push_back(cur[0] + cos(yaw) * i);
+                r_y.push_back(cur[1] + sin(yaw) * i);
                 r_yaw.push_back(yaw);
             }
             r_x.push_back(cur[0] + cos(yaw) * p.second);
@@ -107,8 +120,8 @@ vector<Pose> Dubins::generatePath(Pose s, DubinsPath path, double radius) {
             ang_start = atan2(cur[1] - center[1], cur[0] - center[0]);
             if (p.first == 'l') ang_end = ang_start + p.second;
             else ang_end = ang_start - p.second;
-            if (ang_start < ang_end) step = (0.1 / radius);
-            else step = (-0.1 / radius);
+            if (ang_start < ang_end) step = (1 / radius);
+            else step = (-1 / radius);
             ang = ang_start;
             for (int i = 0; i < (ang_end - ang_start) / step; i+=1) {
                 r_x.push_back(center[0] + cos(ang) * radius);

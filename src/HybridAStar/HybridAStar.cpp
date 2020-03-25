@@ -1,8 +1,9 @@
 #include <iostream>
-#include <ctime>
-#include <cstdio>
+#include <chrono>
 
 #include "HybridAStar.h"
+
+using namespace std::chrono;
 
 HybridAStar::HybridAStar(MapInfo *map_info_, double radius_):
     map_info(map_info_), radius(radius_) {
@@ -53,13 +54,6 @@ vector<Pose> HybridAStar::reconstructPath(Pose p) {
 }
 
 double HybridAStar::hCost(Pose &p) {
-//    AStar plan (map_info);
-//    vector<Point> path = plan.runAStar();
-//    double d = 0;
-//    for (size_t i = 0; i < path.size() - 1; i++) {
-//        d += AStar::distance(path[i], path[i+1]);
-//    }
-
     double d = AStar::distance(p, map_info->end);
     return d;
 }
@@ -96,8 +90,7 @@ vector<Pose> HybridAStar::runHybridAStar() {
         vector<Pose> path = dbp.generatePath(x.pose, shortest_dp);
         closest = min(closest, AStar::distance(x.pose, map_info->end));
         if (!isCollision(path) &&
-            AStar::distance(x.pose, map_info->end) < 1 &&
-            abs(x.pose[2] - map_info->end[2]) < 0.5) {
+            AStar::distance(x.pose, map_info->end) < sqrt(2)) {
             return reconstructPath(x.pose);
         }
 
@@ -109,7 +102,9 @@ vector<Pose> HybridAStar::runHybridAStar() {
             if (std::find_if(
                     closelist.begin(), closelist.end(),
                     [&](HybridAStarPoint &p) {
-                        return (p.pose == y);
+                        return (
+                            AStar::distance(p.pose, y) < sqrt(2)
+                        );
                     }) != closelist.end()
                     )
                 continue;
