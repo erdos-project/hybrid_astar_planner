@@ -5,7 +5,7 @@ import os
 from ctypes import c_double, c_int
 
 try:
-    cdll = ctypes.CDLL("cmake-build-debug/libHybridAStar.so")
+    cdll = ctypes.CDLL("build/libHybridAStar.so")
 except:
     cdll = ctypes.CDLL(
         "{}/pylot/planning/hybrid_astar/hybrid_astar_planner/"

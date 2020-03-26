@@ -18,11 +18,13 @@ def main():
     show_animation = True
 
     conds = {
-        'start': [10, 10, 0],
-        'end': [40, 40, np.pi/2],
+        'start': [10, 15, 0],
+        'end': [50, 15, 0],
         'obstacles': [
-            [10, 20,
-             30, 40],
+            [26.0, 10.0,
+             34.0, 17.0],
+            [26.0, 21.0,
+             34.0, 28.0],
         ],
     }  # paste output from debug log
 
