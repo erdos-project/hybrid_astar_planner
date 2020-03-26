@@ -13,15 +13,13 @@ using namespace Eigen;
 
 class MapInfo {
 public:
-    vector<double> start;
-    vector<double> end;
-    double width;
-    double length;
-    MapInfo(vector<double> dimensions, Pose start_,
-            Pose end_, vector<Obstacle *> obstacles_);
+    Pose start, end;
+    MapInfo(Pose start_, Pose end_, vector<Obstacle *> obstacles_);
+    ~MapInfo();
     void setCarPose(Pose p);
     vector<Point> getCarOutline();
     bool isCollision(vector<Point> car_outline);
+    double getMapArea();
 private:
     Car car;
     vector<Obstacle *> obstacles;

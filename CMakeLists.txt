@@ -26,11 +26,21 @@ include_directories(
         ${CUSTOM_EIGEN}
 )
 
-add_executable(hybrid_astar_planner
+add_executable(HybridAStarTest
         LICENSE src/main.cpp include/utils.h
         src/HybridAStar.cpp include/HybridAStar.h
         src/HybridAStarWrapper.cpp src/Dubins.cpp
         include/Dubins.h src/MapInfo.cpp
         include/MapInfo.h src/Car.cpp include/Car.h
         src/Obstacle.cpp include/Obstacle.h)
-target_link_libraries(hybrid_astar_planner Qt5::Widgets Qt5::Gui)
+
+add_library(HybridAStar
+        SHARED LICENSE src/main.cpp include/utils.h
+        src/HybridAStar.cpp include/HybridAStar.h
+        src/HybridAStarWrapper.cpp src/Dubins.cpp
+        include/Dubins.h src/MapInfo.cpp
+        include/MapInfo.h src/Car.cpp include/Car.h
+        src/Obstacle.cpp include/Obstacle.h)
+
+target_link_libraries(HybridAStarTest Qt5::Widgets Qt5::Gui)
+target_link_libraries(HybridAStar Qt5::Widgets Qt5::Gui)

@@ -12,7 +12,6 @@ using namespace chrono;
 
 int main() {
     // test hybrid a star
-    vector<double> dimensions ({60.0, 60.0});
     Pose start ({10.0, 15.0, 0.0});
     Pose end ({50.0, 15.0, 0.0});
 
@@ -21,30 +20,20 @@ int main() {
     Vector2f ol, ou;
 
     ol.x() = 28.0;
-    ol.y() = 13.0;
+    ol.y() = 14.0;
     ou.x() = 32.0;
-    ou.y() = 17.0;
+    ou.y() = 16.0;
     o = new Obstacle(ol, ou);
     obs.push_back(o);
 
     ol.x() = 28.0;
-    ol.y() = 20.0;
+    ol.y() = 19.0;
     ou.x() = 32.0;
-    ou.y() = 24.0;
+    ou.y() = 21.0;
     o = new Obstacle(ol, ou);
     obs.push_back(o);
 
-    for (int i = 0; i < 60; i+=1) {
-        ol.x() = i;
-        ol.y() = 12;
-        ou.x() = i;
-        ou.y() = 12;
-        o = new Obstacle(ol, ou);
-        obs.push_back(o);
-    }
-
-    MapInfo *map_info = new MapInfo(dimensions, start, end, obs);
-
+    MapInfo *map_info = new MapInfo(start, end, obs);
     HybridAStar hastar (map_info, RADIUS);
     auto st = high_resolution_clock::now();
 
