@@ -33,7 +33,6 @@ def apply_hybrid_astar(start, end, obs):
     urx = np.copy(obs[:, 2]).astype(np.float64)
     ury = np.copy(obs[:, 3]).astype(np.float64)
 
-    print(start, end)
     success = _apply_hybrid_astar(
         c_double(start[0]), c_double(start[1]), c_double(start[2]),
         c_double(end[0]), c_double(end[1]), c_double(end[2]),

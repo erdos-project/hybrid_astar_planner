@@ -88,13 +88,9 @@ double HybridAStar::distance(Point p1, Point p2) {
 
 // Run Hybrid A Star algorithm
 vector<Pose> HybridAStar::runHybridAStar() {
-    int count = 0;
-    double area = map_info->getMapArea();
     double closest_distance = INFINITY;
     Pose best_pose = map_info->start;
-    while (!openlist.empty() && count < area) {
-        count += 1;
-
+    while (!openlist.empty()) {
         // get the lowest total cost node and add it to close list
         pop_heap(openlist.begin(), openlist.end());
         HybridAStarPoint x = openlist.back();
@@ -111,7 +107,8 @@ vector<Pose> HybridAStar::runHybridAStar() {
             closest_distance = distance(x.pose, map_info->end);
         }
 
-        if (distance(x.pose, map_info->end) <= COMPLETION_THRESHOLD) {
+        if (distance(x.pose, map_info->end) <= COMPLETION_THRESHOLD &&
+            abs(x.pose[2] - map_info->end[2]) <= ANGLE_COMPLETION_THRESHOLD) {
             best_pose = x.pose;
             break;
         }

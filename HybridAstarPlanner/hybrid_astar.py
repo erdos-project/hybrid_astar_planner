@@ -18,19 +18,20 @@ def main():
     show_animation = True
 
     conds = {
-        'start': [10, 15, 0],
-        'end': [50, 15, 0],
+        'start': [10, 10, 0],
+        'end': [40, 40, np.pi/2],
         'obstacles': [
-            [28.0, 14.0,
-             32.0, 16.0],
-            [28.0, 19.0,
-             32.0, 21.0],
+            [10, 20,
+             30, 40],
         ],
     }  # paste output from debug log
 
     start = conds['start']
     end = conds['end']
-    obs = np.array(conds['obstacles'])
+    if len(conds['obstacles']) == 0:
+        obs = np.empty((0, 4))
+    else:
+        obs = np.array(conds['obstacles'])
 
     total_time_taken = 0
     x, y, yaw = start
@@ -39,6 +40,7 @@ def main():
         hybrid_astar_wrapper.apply_hybrid_astar([x, y, yaw], end, obs)
     end_time = time.time() - start_time
     print("Time taken: {}s".format(end_time))
+    print(success)
     for i in range(sim_loop):
         print("Iteration: {}".format(i))
         x = result_x[0]
