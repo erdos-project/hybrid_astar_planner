@@ -31,8 +31,7 @@ git clone https://github.com/erdos-project/hybrid_astar_planner.git
 There is a Python wrapper and C++ API. The Python wrapper is located in 
 `HybridAStar/hybrid_astar_wrapper.py` and the C++ API is under 
 `src/HybridAStarWrapper.cpp`.
-The following command will simulate a simple scenario to run the HybridAStar
-* planning 
+The following command will simulate a simple scenario to run the HybridAStar planning 
 algorithm.
 ```
 python3 HybridAStar/hybrid_astar.py
