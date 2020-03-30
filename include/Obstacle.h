@@ -11,8 +11,8 @@ public:
     bool isSegmentInObstacle(Eigen::Vector2f &p1, Eigen::Vector2f &p2);
     bool isPointNearObstacle(Eigen::Vector2f &p, double radius);
     double getArea();
-    std::pair<Eigen::Vector2f, Eigen::Vector2f> bbox;
 private:
+    std::pair<Eigen::Vector2f, Eigen::Vector2f> bbox;
 };
 
 

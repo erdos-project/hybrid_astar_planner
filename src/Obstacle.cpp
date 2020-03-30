@@ -43,7 +43,7 @@ Obstacle::Obstacle(Eigen::Vector2f first_point, Eigen::Vector2f second_point)
 bool Obstacle::isSegmentInObstacle(Vector2f &p1, Vector2f &p2)
 {
     QLineF line_segment(p1.x(), p1.y(), p2.x(), p2.y());
-    auto *intersect_pt = new QPointF;
+    QPointF intersect_pt;
     float length = bbox.second.x() - bbox.first.x();
     float breadth = bbox.second.y() - bbox.first.y();
     QLineF lseg1(bbox.first.x(), bbox.first.y(),
@@ -54,10 +54,10 @@ bool Obstacle::isSegmentInObstacle(Vector2f &p1, Vector2f &p2)
                  bbox.second.x(), bbox.second.y() - breadth);
     QLineF lseg4(bbox.second.x(), bbox.second.y(),
                  bbox.second.x() - length, bbox.second.y());
-    QLineF::IntersectType x1 = line_segment.intersect(lseg1, intersect_pt);
-    QLineF::IntersectType x2 = line_segment.intersect(lseg2, intersect_pt);
-    QLineF::IntersectType x3 = line_segment.intersect(lseg3, intersect_pt);
-    QLineF::IntersectType x4 = line_segment.intersect(lseg4, intersect_pt);
+    QLineF::IntersectType x1 = line_segment.intersect(lseg1, &intersect_pt);
+    QLineF::IntersectType x2 = line_segment.intersect(lseg2, &intersect_pt);
+    QLineF::IntersectType x3 = line_segment.intersect(lseg3, &intersect_pt);
+    QLineF::IntersectType x4 = line_segment.intersect(lseg4, &intersect_pt);
     // check for bounded intersection. IntersectType for bounded intersection is 1.
     if (x1 == 1 || x2 == 1 || x3 == 1 || x4 == 1)
         return true;
@@ -71,12 +71,17 @@ bool Obstacle::isSegmentInObstacle(Vector2f &p1, Vector2f &p2)
 }
 
 bool Obstacle::isPointNearObstacle(Vector2f &p, double radius) {
-    double dist_to_lower, dist_to_upper;
-    dist_to_lower = sqrt(pow(bbox.first.x() - p.x(), 2) +
+    double dist_to_ll, dist_to_lr, dist_to_ul, dist_to_ur;
+    dist_to_ll = sqrt(pow(bbox.first.x() - p.x(), 2) +
                          pow(bbox.first.y() - p.y(), 2));
-    dist_to_upper = sqrt(pow(bbox.second.x() - p.x(), 2) +
+    dist_to_lr = sqrt(pow(bbox.second.x() - p.x(), 2) +
+                      pow(bbox.first.y() - p.y(), 2));
+    dist_to_ul = sqrt(pow(bbox.first.x() - p.x(), 2) +
+                      pow(bbox.second.y() - p.y(), 2));
+    dist_to_ur = sqrt(pow(bbox.second.x() - p.x(), 2) +
                          pow(bbox.second.y() - p.y(), 2));
-    if (dist_to_lower <= radius || dist_to_upper <= radius) {
+    if (dist_to_ll <= radius || dist_to_lr <= radius ||
+        dist_to_ul <= radius || dist_to_ur <= radius ) {
         return true;
     }
     return false;

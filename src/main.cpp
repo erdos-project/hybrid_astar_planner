@@ -42,10 +42,9 @@ int main() {
     auto duration = duration_cast<microseconds>(stop - st);
     cout << "Duration (ms): " << duration.count() << endl;
     cout << "Expected destination: " << end[0] <<  " " << end[1] << " " <<
-    end[2] << endl;
+        end[2] << endl;
     cout << "Reached: " << path.back()[0] << " " << path.back()[1] <<  " "
-    << path
-    .back()[2] << endl;
+        << path.back()[2] << endl;
     cout << "[";
     for (auto p : path) {
         cout << "[" << p[0] << ", " << p[1] << ", " << p[2] << "], ";
