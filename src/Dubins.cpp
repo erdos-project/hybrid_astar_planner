@@ -13,7 +13,7 @@ DubinsPath Dubins::getShortestPath() {
     for (const auto& path: paths) {
         cost = 0;
         for (auto p: path) {
-            if (p.first == 's') {
+            if (p.first == direction_t::straight) {
                 cost += p.second;
             }
             else {
@@ -45,7 +45,7 @@ vector<Pose> Dubins::generatePath(Pose s, DubinsPath path, double radius) {
     cur = s;
     yaw = s[2];
     for (auto p: path) {
-        if (p.first == 's') {
+        if (p.first == direction_t::straight) {
             if (p.second > 0) {
                 tick = 1;
             } else {
@@ -62,7 +62,7 @@ vector<Pose> Dubins::generatePath(Pose s, DubinsPath path, double radius) {
         } else {
             center = calcTurnCenter(cur, p.first, radius);
             ang_start = atan2(cur[1] - center[1], cur[0] - center[0]);
-            if (p.first == 'l') {
+            if (p.first == direction_t::left) {
                 ang_end = ang_start + p.second;
             }
             else {
@@ -84,7 +84,7 @@ vector<Pose> Dubins::generatePath(Pose s, DubinsPath path, double radius) {
             }
             r_x.push_back(center[0] + cos(ang_end) * radius);
             r_y.push_back(center[1] + sin(ang_end) * radius);
-            if (p.first == 'l') {
+            if (p.first == direction_t::left) {
                 yaw = cur[2] + p.second;
             }
             else {
@@ -140,9 +140,9 @@ DubinsPath Dubins::calcLSL(Pose e) {
     t = mod2Pi(atan2(y, x));
     v = mod2Pi(yaw - t);
 
-    DubinsPoint first ('l', t);
-    DubinsPoint second ('s', u * radius);
-    DubinsPoint third ('l', v);
+    DubinsPoint first (direction_t::left, t);
+    DubinsPoint second (direction_t::straight, u * radius);
+    DubinsPoint third (direction_t::left, v);
 
     dp.push_back(first);
     dp.push_back(second);
@@ -158,8 +158,8 @@ DubinsPath Dubins::calcRSR(Pose e) {
     e_prime[1] = -e[1];
     e_prime[2] = mod2Pi(-e[2]);
     path = calcLSL(e_prime);
-    path[0].first = 'r';
-    path[2].first = 'r';
+    path[0].first = direction_t::right;
+    path[2].first = direction_t::right;
     return path;
 }
 
@@ -181,9 +181,9 @@ DubinsPath Dubins::calcLSR(Pose e) {
     theta = mod2Pi(atan(2 / u));
     t = mod2Pi(t1 + theta);
     v = mod2Pi(t - yaw);
-    first = make_pair('l', t);
-    second = make_pair('s', u * radius);
-    third = make_pair('r', v);
+    first = make_pair(direction_t::left, t);
+    second = make_pair(direction_t::straight, u * radius);
+    third = make_pair(direction_t::right, v);
 
     dp.push_back(first);
     dp.push_back(second);
@@ -203,8 +203,8 @@ DubinsPath Dubins::calcRSL(Pose e) {
     if (path.empty()) {
         return path;
     }
-    path[0].first = 'r';
-    path[2].first = 'l';
+    path[0].first = direction_t::right;
+    path[2].first = direction_t::left;
     return path;
 }
 
@@ -226,9 +226,9 @@ DubinsPath Dubins::calcLRL(Pose e) {
     t = mod2Pi(M_PI_2 + t1 + theta);
     u = mod2Pi(M_PI + 2 * theta);
     v = mod2Pi(M_PI_2 - t1 + theta + yaw);
-    first = make_pair('l', t);
-    second = make_pair('r', u);
-    third = make_pair('l', v);
+    first = make_pair(direction_t::left, t);
+    second = make_pair(direction_t::right, u);
+    third = make_pair(direction_t::left, v);
 
     dp.push_back(first);
     dp.push_back(second);
@@ -248,9 +248,9 @@ DubinsPath Dubins::calcRLR(Pose e) {
     if (path.empty()) {
         return path;
     }
-    path[0].first = 'r';
-    path[1].first = 'l';
-    path[2].first = 'r';
+    path[0].first = direction_t::right;
+    path[1].first = direction_t::left;
+    path[2].first = direction_t::right;
     return path;
 }
 

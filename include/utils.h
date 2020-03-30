@@ -9,13 +9,15 @@ using namespace std;
 typedef vector<double> Point;
 typedef vector<double> Pose;
 
+enum direction_t {left='l', straight='s', right='r'};
+
 inline Point calcTurnCenter(Point point, char dir, double radius) {
     double x, y, ang;
     Point turn_center;
 
     ang = point[2];
-    if (dir == 'l') ang += M_PI_2;
-    else if (dir == 'r') ang -= M_PI_2;
+    if (dir == direction_t::left) ang += M_PI_2;
+    else if (dir == direction_t::right) ang -= M_PI_2;
 
     x = point[0] + cos(ang) * radius;
     y = point[1] + sin(ang) * radius;

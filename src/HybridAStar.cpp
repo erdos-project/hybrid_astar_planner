@@ -26,12 +26,12 @@ vector<DubinsPath> HybridAStar::getNeighbors(Pose &p) {
     // apply different turning angles / distances to produce neighbors
     while (rad >= radius - RAD_LOWER_RANGE) {
         rad -= RAD_STEP;
-        DubinsPath dpl (1, make_pair('l', STEP_SIZE / rad));
-        DubinsPath dpr (1, make_pair('r', STEP_SIZE / rad));
+        DubinsPath dpl (1, make_pair(direction_t::left, STEP_SIZE / rad));
+        DubinsPath dpr (1, make_pair(direction_t::right, STEP_SIZE / rad));
         paths.push_back(dpl);
         paths.push_back(dpr);
     }
-    DubinsPath straight(1, make_pair('s', STEP_SIZE));
+    DubinsPath straight(1, make_pair(direction_t::straight, STEP_SIZE));
 
     // can make the STEP_SIZE negative to enable reversing
     paths.push_back(straight);
@@ -131,7 +131,7 @@ vector<Pose> HybridAStar::runHybridAStar() {
             }
             // update current heuristic cost
             double tentative_g_score = x.g;
-            if (neighbor[0].first == 's')
+            if (neighbor[0].first == direction_t::straight)
                 tentative_g_score += abs(neighbor[0].second);
             else tentative_g_score += abs(neighbor[0].second * radius);
 
