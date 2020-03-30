@@ -17,7 +17,6 @@ public:
            double radius_): start(move(start_pose)),
                end(move(end_pose)), radius(radius_) {}
     vector<DubinsPoint> getShortestPath();
-    vector<Pose> generatePath(Pose s, vector<DubinsPoint> path);
     static vector<Pose> generatePath(Pose s, vector<DubinsPoint> path,
             double radius);
 private:

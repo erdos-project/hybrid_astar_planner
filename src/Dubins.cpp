@@ -13,8 +13,12 @@ DubinsPath Dubins::getShortestPath() {
     for (const auto& path: paths) {
         cost = 0;
         for (auto p: path) {
-            if (p.first == 's') cost += p.second;
-            else cost += p.second * radius;
+            if (p.first == 's') {
+                cost += p.second;
+            }
+            else {
+                cost += p.second * radius;
+            }
         }
         if (cost < shortest_cost) {
             shortest_path = path;
@@ -23,68 +27,6 @@ DubinsPath Dubins::getShortestPath() {
     }
 
     return shortest_path;
-}
-
-
-// Construct the x, y, yaw path given a starting pose, Dubin's path
-// Arguments:
-//      s: initial pose x, y, yaw
-//      path: Dubin's path to construct
-// Returns:
-//      vector of pose x, y, yaw
-vector<Pose> Dubins::generatePath(Pose s, DubinsPath path) {
-    vector<double> r_x, r_y, r_yaw, cur, center;
-    double yaw, ang, ang_start, ang_end, step;
-    int tick;
-    vector<Pose> ret;
-    cur = s;
-    yaw = s[2];
-    for (auto p: path) {
-        if (p.first == 's') {
-            if (p.second > 0) {
-                tick = 1;
-            } else {
-                tick = -1;
-            }
-            for (int i = 0; i < p.second; i+=tick) {
-                r_x.push_back(cur[0] + cos(yaw) * i);
-                r_y.push_back(cur[1] + sin(yaw) * i);
-                r_yaw.push_back(yaw);
-            }
-            r_x.push_back(cur[0] + cos(yaw) * p.second);
-            r_y.push_back(cur[1] + sin(yaw) * p.second);
-            r_yaw.push_back(yaw);
-        } else {
-            center = calcTurnCenter(cur, p.first, radius);
-            ang_start = atan2(cur[1] - center[1], cur[0] - center[0]);
-            if (p.first == 'l') ang_end = ang_start + p.second;
-            else ang_end = ang_start - p.second;
-            if (ang_start < ang_end) step = (1 / radius);
-            else step = (-1 / radius);
-            ang = ang_start;
-            for (int i = 0; i < (ang_end - ang_start) / step; i+=1) {
-                r_x.push_back(center[0] + cos(ang) * radius);
-                r_y.push_back(center[1] + sin(ang) * radius);
-                r_yaw.push_back(yaw);
-                yaw += step;
-                ang += step;
-            }
-            r_x.push_back(center[0] + cos(ang_end) * radius);
-            r_y.push_back(center[1] + sin(ang_end) * radius);
-            if (p.first == 'l') yaw = cur[2] + p.second;
-            else yaw = cur[2] - p.second;
-            r_yaw.push_back(yaw);
-        }
-        cur.clear();
-        cur.push_back(r_x.back());
-        cur.push_back(r_y.back());
-        cur.push_back(yaw);
-    }
-    for (size_t i = 0; i < r_x.size(); i++) {
-        Pose p({r_x[i], r_y[i], r_yaw[i]});
-        ret.push_back(p);
-    }
-    return ret;
 }
 
 // Construct the x, y, yaw path given a starting pose, Dubin's path and radius
@@ -120,10 +62,18 @@ vector<Pose> Dubins::generatePath(Pose s, DubinsPath path, double radius) {
         } else {
             center = calcTurnCenter(cur, p.first, radius);
             ang_start = atan2(cur[1] - center[1], cur[0] - center[0]);
-            if (p.first == 'l') ang_end = ang_start + p.second;
-            else ang_end = ang_start - p.second;
-            if (ang_start < ang_end) step = (1 / radius);
-            else step = (-1 / radius);
+            if (p.first == 'l') {
+                ang_end = ang_start + p.second;
+            }
+            else {
+                ang_end = ang_start - p.second;
+            }
+            if (ang_start < ang_end) {
+                step = (1 / radius);
+            }
+            else {
+                step = (-1 / radius);
+            }
             ang = ang_start;
             for (int i = 0; i < (ang_end - ang_start) / step; i+=1) {
                 r_x.push_back(center[0] + cos(ang) * radius);
@@ -134,8 +84,12 @@ vector<Pose> Dubins::generatePath(Pose s, DubinsPath path, double radius) {
             }
             r_x.push_back(center[0] + cos(ang_end) * radius);
             r_y.push_back(center[1] + sin(ang_end) * radius);
-            if (p.first == 'l') yaw = cur[2] + p.second;
-            else yaw = cur[2] - p.second;
+            if (p.first == 'l') {
+                yaw = cur[2] + p.second;
+            }
+            else {
+                yaw = cur[2] - p.second;
+            }
             r_yaw.push_back(yaw);
         }
         cur.clear();

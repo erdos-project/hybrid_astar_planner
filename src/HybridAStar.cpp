@@ -100,7 +100,7 @@ vector<Pose> HybridAStar::runHybridAStar() {
         // construct Dubin's path to end
         Dubins dbp(x.pose, map_info->end, radius);
         DubinsPath shortest_dp = dbp.getShortestPath();
-        vector<Pose> path = dbp.generatePath(x.pose, shortest_dp);
+        vector<Pose> path = Dubins::generatePath(x.pose, shortest_dp, radius);
         if (!isCollision(path) &&
             distance(x.pose, map_info->end) < closest_distance) {
             best_pose = x.pose;
