@@ -81,11 +81,6 @@ bool HybridAStar::isCollision(vector<Pose> path) {
     return false;
 }
 
-// Compute the distance between two points
-double HybridAStar::distance(Point p1, Point p2) {
-    return sqrt(pow(p2[0] - p1[0], 2) + pow(p2[1]- p1[1], 2));
-}
-
 // Run Hybrid A Star algorithm
 vector<Pose> HybridAStar::runHybridAStar() {
     double closest_distance = INFINITY;

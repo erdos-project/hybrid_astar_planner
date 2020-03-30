@@ -23,4 +23,9 @@ inline Point calcTurnCenter(Point point, char dir, double radius) {
     turn_center.push_back(y);
     return turn_center;
 }
+
+inline double distance(Point p1, Point p2) {
+    return sqrt(pow(p2[0] - p1[0], 2) + pow(p2[1]- p1[1], 2));
+}
+
 #endif //HYBRID_ASTAR_PLANNER_UTILS_H

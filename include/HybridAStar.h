@@ -22,7 +22,6 @@ class HybridAStar {
 public:
     HybridAStar(MapInfo *map_info_, double radius_);
     vector<Pose> runHybridAStar();
-    static double distance(Point p1, Point p2);
 private:
     vector<HybridAStarPoint> openlist, closelist;
     MapInfo *map_info;
