@@ -6,9 +6,9 @@ import matplotlib.patches as patch
 
 
 def main():
-    """A debug script for the rrt star planner.
+    """A debug script for the hybrid astar planner.
 
-    This script will solve the rrt star problem in a
+    This script will solve the hybrid astar problem in a
     standalone simulation and visualize the results or raise an error if a
     path is not found.
     """
@@ -17,32 +17,42 @@ def main():
     area = 20.0  # animation area length [m]
     show_animation = True
 
-    conds = {
-        'start': [10, 15, 0],
-        'end': [50, 15, 0],
-        'obstacles': [
-            [26.0, 10.0,
-             34.0, 17.0],
-            [26.0, 21.0,
-             34.0, 28.0],
-        ],
+    initial_conditions = {
+        'start': np.array([10, 15, 0]),
+        'end': np.array([50, 15, 0]),
+        'obs': np.array([
+            [26.0, 10.0, 34.0, 17.0],
+            [26.0, 21.0, 34.0, 28.0],
+        ]),
     }  # paste output from debug log
 
-    start = conds['start']
-    end = conds['end']
-    if len(conds['obstacles']) == 0:
-        obs = np.empty((0, 4))
-    else:
-        obs = np.array(conds['obstacles'])
-
-    total_time_taken = 0
-    x, y, yaw = start
+    hyperparameters = {
+        "step_size": 3.0,
+        "max_iterations": 10000,
+        "completion_threshold": 1.0,
+        "angle_completion_threshold": 3.0,
+        "rad_step": 0.5,
+        "rad_upper_range": 4.0,
+        "rad_lower_range": 4.0,
+        "obstacle_clearance": 0.5,
+        "lane_width": 6.0,
+        "radius": 6.0,
+        "car_length": 4.8,
+        "car_width": 1.8,
+    }
     start_time = time.time()
-    success, (result_x, result_y, result_yaw) = \
-        hybrid_astar_wrapper.apply_hybrid_astar([x, y, yaw], end, obs)
+    result_x, result_y, result_yaw, success = \
+        hybrid_astar_wrapper.apply_hybrid_astar(initial_conditions,
+                                                hyperparameters)
     end_time = time.time() - start_time
     print("Time taken: {}s".format(end_time))
     print(success)
+    if not success:
+        print("FAILED")
+        return
+    start = initial_conditions['start']
+    end = initial_conditions['end']
+    obs = initial_conditions['obs']
     for i in range(sim_loop):
         print("Iteration: {}".format(i))
         x = result_x[0]

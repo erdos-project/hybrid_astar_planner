@@ -1,5 +1,4 @@
 #include "include/MapInfo.h"
-#include "include/constants.h"
 
 #include <utility>
 
@@ -8,11 +7,13 @@
 //      start_: starting pose of car x, y, yaw
 //      end_: desired ending pose of car x, y, yaw
 //      obstacles: list of obstacles
-MapInfo::MapInfo(Pose start_, Pose end_, vector<Obstacle *> obstacles_):
-                 start(move(start_)), end(move(end_)),
-                 obstacles(move(obstacles_)) {
+MapInfo::MapInfo(HybridAStarInitialConditions *hastar_ic_,
+    HybridAStarHyperparameters *hastar_hp_) {
+    hastar_ic = hastar_ic_;
+    hastar_hp = hastar_hp_;
     setStateSpace();
-    vector<double> car_dimensions ({DEFAULT_CAR_LENGTH, DEFAULT_CAR_WIDTH});
+    setObstacles();
+    vector<double> car_dimensions ({hastar_hp->car_length, hastar_hp->car_width});
     Pose car_pose (start);
     car = Car(car_dimensions, car_pose);
 }
@@ -30,10 +31,33 @@ MapInfo::~MapInfo()
 // State space calculated as minimum bounding rectangle with buffer
 // origin is lower left corner, bounds is width, height
 void MapInfo::setStateSpace() {
-    origin.push_back(min(start[0], end[0]) - LANE_WIDTH); // x
-    origin.push_back(min(start[1], end[1]) - LANE_WIDTH); // y
-    bounds.push_back(max(start[0], end[0]) - origin[0] + LANE_WIDTH);
-    bounds.push_back(max(start[1], end[1]) - origin[1] + LANE_WIDTH);
+    start.assign({hastar_ic->x_start, hastar_ic->y_start, hastar_ic->yaw_start});
+    end.assign({hastar_ic->x_end, hastar_ic->y_end, hastar_ic->yaw_end});
+    origin.push_back(min(start[0], end[0]) - hastar_hp->lane_width); // x
+    origin.push_back(min(start[1], end[1]) - hastar_hp->lane_width); // y
+    bounds.push_back(max(start[0], end[0]) - origin[0] + hastar_hp->lane_width);
+    bounds.push_back(max(start[1], end[1]) - origin[1] + hastar_hp->lane_width);
+}
+
+void MapInfo::setObstacles() {
+    // Construct obstacles
+    vector<double> llx(hastar_ic->o_llx, hastar_ic->o_llx + hastar_ic->no);
+    vector<double> lly(hastar_ic->o_lly, hastar_ic->o_lly + hastar_ic->no);
+    vector<double> urx(hastar_ic->o_urx, hastar_ic->o_urx + hastar_ic->no);
+    vector<double> ury(hastar_ic->o_ury, hastar_ic->o_ury + hastar_ic->no);
+
+    for (int i = 0; i < hastar_ic->no; i++) {
+        addObstacle(
+            Vector2f(llx[i], lly[i]),
+            Vector2f(urx[i], ury[i])
+        );
+    }
+}
+
+void MapInfo::addObstacle(Vector2f first_point, Vector2f second_point) {
+    obstacles.push_back(new Obstacle(std::move(first_point),
+                                     std::move(second_point),
+                                     hastar_hp->obstacle_clearance));
 }
 
 // Set the pose of the car

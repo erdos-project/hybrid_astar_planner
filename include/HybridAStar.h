@@ -1,7 +1,8 @@
 #ifndef HYBRID_ASTAR_PLANNER_HYBRIDASTAR_H
 #define HYBRID_ASTAR_PLANNER_HYBRIDASTAR_H
 
-#include "include/Dubins.h"
+#include "Dubins.h"
+#include "py_cpp_struct.h"
 #include "MapInfo.h"
 #include "utils.h"
 
@@ -20,12 +21,12 @@ struct HybridAStarPoint
 
 class HybridAStar {
 public:
-    HybridAStar(MapInfo *map_info_, double radius_);
+    HybridAStarHyperparameters *hastar_hp;
+    HybridAStar(MapInfo *map_info_, HybridAStarHyperparameters *hastar_hp_);
     vector<Pose> runHybridAStar();
 private:
     vector<HybridAStarPoint> openlist, closelist;
     MapInfo *map_info;
-    double radius;
     double hCost(Pose &p);
     bool isCollision(vector<Pose> path);
     vector<DubinsPath> getNeighbors(Pose &p);
