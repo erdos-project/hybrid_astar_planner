@@ -60,7 +60,7 @@ def main():
         result_x = result_x[1:]
         result_y = result_y[1:]
 
-        if np.hypot(x - end[0], y - end[1]) <= 1.5:
+        if np.hypot(x - end[0], y - end[1]) <= 2:
             print("Goal")
             break
 
