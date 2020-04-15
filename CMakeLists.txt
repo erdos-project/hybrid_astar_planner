@@ -40,7 +40,7 @@ add_library(HybridAStar
         src/HybridAStarWrapper.cpp src/Dubins.cpp
         include/Dubins.h src/MapInfo.cpp
         include/MapInfo.h src/Car.cpp include/Car.h
-        src/Obstacle.cpp include/Obstacle.h)
+        src/Obstacle.cpp include/Obstacle.h include/py_cpp_struct.h)
 
 target_link_libraries(HybridAStarTest Qt5::Widgets Qt5::Gui)
 target_link_libraries(HybridAStar Qt5::Widgets Qt5::Gui)

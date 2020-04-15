@@ -1,12 +1,11 @@
 #include "include/Obstacle.h"
 
 #include <QLine>
-#include <vector>
 
 using namespace Eigen;
 using namespace std;
 
-Obstacle::Obstacle(Eigen::Vector2f first_point, Eigen::Vector2f second_point)
+Obstacle::Obstacle(Vector2f first_point, Vector2f second_point, double obstacle_clearance)
 {
     // Get topLeft and bottomRight points from the given points.
     Vector2f tmp;
@@ -23,10 +22,10 @@ Obstacle::Obstacle(Eigen::Vector2f first_point, Eigen::Vector2f second_point)
         first_point.x() -= length;
         second_point.x() += length;
     }
-    first_point.x() -= BOT_CLEARANCE;
-    first_point.y() -= BOT_CLEARANCE;
-    second_point.x() += BOT_CLEARANCE;
-    second_point.y() += BOT_CLEARANCE;
+    first_point.x() -= obstacle_clearance;
+    first_point.y() -= obstacle_clearance;
+    second_point.x() += obstacle_clearance;
+    second_point.y() += obstacle_clearance;
 
     bbox.first.x() = first_point.x();
     bbox.first.y() = first_point.y();

@@ -3,8 +3,10 @@
 #include <algorithm>
 #include <cmath>
 
-HybridAStar::HybridAStar(MapInfo *map_info_, double radius_):
-    map_info(map_info_), radius(radius_) {
+HybridAStar::HybridAStar(MapInfo *map_info_,
+    HybridAStarHyperparameters *hastar_hp_):
+    map_info(map_info_) {
+    hastar_hp = hastar_hp_;
     HybridAStarPoint p;
     double d = hCost(map_info->start);
     p.pose.assign(map_info->start.begin(), map_info->start.end());
@@ -22,16 +24,18 @@ HybridAStar::HybridAStar(MapInfo *map_info_, double radius_):
 //      a list of Dubin's paths
 vector<DubinsPath> HybridAStar::getNeighbors(Pose &p) {
     vector<DubinsPath> paths;
-    double rad = radius + RAD_UPPER_RANGE;
+    double rad = hastar_hp->radius + hastar_hp->rad_upper_range;
     // apply different turning angles / distances to produce neighbors
-    while (rad >= radius - RAD_LOWER_RANGE) {
-        rad -= RAD_STEP;
-        DubinsPath dpl (1, make_pair(direction_t::left, STEP_SIZE / rad));
-        DubinsPath dpr (1, make_pair(direction_t::right, STEP_SIZE / rad));
+    while (rad >= hastar_hp->radius - hastar_hp->rad_lower_range) {
+        rad -= hastar_hp->rad_step;
+        DubinsPath dpl (1, make_pair(direction_t::left,
+            hastar_hp->step_size / rad));
+        DubinsPath dpr (1, make_pair(direction_t::right,
+            hastar_hp->step_size / rad));
         paths.push_back(dpl);
         paths.push_back(dpr);
     }
-    DubinsPath straight(1, make_pair(direction_t::straight, STEP_SIZE));
+    DubinsPath straight(1, make_pair(direction_t::straight, hastar_hp->step_size));
 
     // can make the STEP_SIZE negative to enable reversing
     paths.push_back(straight);
@@ -93,17 +97,17 @@ vector<Pose> HybridAStar::runHybridAStar() {
         closelist.push_back(x);
 
         // construct Dubin's path to end
-        Dubins dbp(x.pose, map_info->end, radius);
+        Dubins dbp(x.pose, map_info->end, hastar_hp->radius);
         DubinsPath shortest_dp = dbp.getShortestPath();
-        vector<Pose> path = Dubins::generatePath(x.pose, shortest_dp, radius);
+        vector<Pose> path = Dubins::generatePath(x.pose, shortest_dp, hastar_hp->radius);
         if (!isCollision(path) &&
             distance(x.pose, map_info->end) < closest_distance) {
             best_pose = x.pose;
             closest_distance = distance(x.pose, map_info->end);
         }
 
-        if (distance(x.pose, map_info->end) <= COMPLETION_THRESHOLD &&
-            abs(x.pose[2] - map_info->end[2]) <= ANGLE_COMPLETION_THRESHOLD) {
+        if (distance(x.pose, map_info->end) <= hastar_hp->completion_threshold &&
+            abs(x.pose[2] - map_info->end[2]) <= hastar_hp->angle_completion_threshold) {
             best_pose = x.pose;
             break;
         }
@@ -112,7 +116,7 @@ vector<Pose> HybridAStar::runHybridAStar() {
         vector<DubinsPath> neighbors = getNeighbors(x.pose);
         for (auto neighbor : neighbors) {
             vector<Pose> neighbor_path =
-                Dubins::generatePath(x.pose, neighbor, radius);
+                Dubins::generatePath(x.pose, neighbor, hastar_hp->radius);
             Pose y = neighbor_path.back();
 
             // continue if a nearby point was already explored or collision
@@ -120,7 +124,7 @@ vector<Pose> HybridAStar::runHybridAStar() {
                     closelist.begin(), closelist.end(),
                     [&](HybridAStarPoint &p) {
                         return (
-                            distance(p.pose, y) < COMPLETION_THRESHOLD
+                            distance(p.pose, y) < hastar_hp->completion_threshold
                         );
                     }) != closelist.end()
                 )
@@ -133,7 +137,7 @@ vector<Pose> HybridAStar::runHybridAStar() {
             double tentative_g_score = x.g;
             if (neighbor[0].first == direction_t::straight)
                 tentative_g_score += abs(neighbor[0].second);
-            else tentative_g_score += abs(neighbor[0].second * radius);
+            else tentative_g_score += abs(neighbor[0].second * hastar_hp->radius);
 
             // keep the neighbor if it is unexplored
             auto it_y = std::find_if(
