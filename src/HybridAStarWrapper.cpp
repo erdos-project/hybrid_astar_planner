@@ -1,5 +1,8 @@
 #include "include/HybridAStar.h"
+<<<<<<< HEAD
 #include "include/py_cpp_struct.h"
+=======
+>>>>>>> upstream/master
 
 #include <eigen3/Eigen/Dense>
 #include <vector>

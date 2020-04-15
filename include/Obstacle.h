@@ -1,6 +1,11 @@
 #ifndef HYBRID_ASTAR_PLANNER_OBSTACLE_H
 #define HYBRID_ASTAR_PLANNER_OBSTACLE_H
 
+<<<<<<< HEAD
+=======
+#include "constants.h"
+
+>>>>>>> upstream/master
 #include <eigen3/Eigen/Dense>
 
 class Obstacle {
