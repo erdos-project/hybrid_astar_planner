@@ -110,6 +110,7 @@ def to_hastar_initial_conditions(initial_conditions):
 def _parse_hyperparameters(hp):
     return HybridAStarHyperparameters(
         hp['step_size'],
+        hp['max_iterations'],
         hp['completion_threshold'],
         hp['angle_completion_threshold'],
         hp['rad_step'],

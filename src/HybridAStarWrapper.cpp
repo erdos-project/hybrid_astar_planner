@@ -9,8 +9,6 @@ using namespace Eigen;
 extern "C" {
     void ApplyHybridAStar(HybridAStarInitialConditions *hastar_ic,
         HybridAStarHyperparameters *hastar_hp, HybridAStarReturnValues *hastar_rv) {
-
-
         MapInfo *map_info = new MapInfo(hastar_ic, hastar_hp);
         HybridAStar hastar (map_info, hastar_hp);
         vector<Pose> path = hastar.runHybridAStar();

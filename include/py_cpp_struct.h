@@ -25,6 +25,7 @@ struct HybridAStarReturnValues {
 
 struct HybridAStarHyperparameters {
     double step_size;
+    int max_iterations;
     double completion_threshold;
     double angle_completion_threshold;
     double rad_step;

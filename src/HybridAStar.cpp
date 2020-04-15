@@ -24,22 +24,26 @@ HybridAStar::HybridAStar(MapInfo *map_info_,
 //      a list of Dubin's paths
 vector<DubinsPath> HybridAStar::getNeighbors(Pose &p) {
     vector<DubinsPath> paths;
-    double rad = hastar_hp->radius + hastar_hp->rad_upper_range;
+    double rad = p[2] + hastar_hp->rad_upper_range;
     // apply different turning angles / distances to produce neighbors
-    while (rad >= hastar_hp->radius - hastar_hp->rad_lower_range) {
-        rad -= hastar_hp->rad_step;
+    while (rad >= p[2] - hastar_hp->rad_lower_range) {
+        // dont divide by 0
+        if (abs(rad) < 0.01) {
+            rad -= hastar_hp->rad_step;
+            continue;
+        }
         DubinsPath dpl (1, make_pair(direction_t::left,
-            hastar_hp->step_size / rad));
+            abs(hastar_hp->step_size / rad)));
         DubinsPath dpr (1, make_pair(direction_t::right,
-            hastar_hp->step_size / rad));
+            abs(hastar_hp->step_size / rad)));
         paths.push_back(dpl);
         paths.push_back(dpr);
+        rad -= hastar_hp->rad_step;
     }
     DubinsPath straight(1, make_pair(direction_t::straight, hastar_hp->step_size));
 
     // can make the STEP_SIZE negative to enable reversing
     paths.push_back(straight);
-
     return paths;
 }
 
@@ -89,13 +93,14 @@ bool HybridAStar::isCollision(vector<Pose> path) {
 vector<Pose> HybridAStar::runHybridAStar() {
     double closest_distance = INFINITY;
     Pose best_pose = map_info->start;
-    while (!openlist.empty()) {
+    int count = 0;
+    while (!openlist.empty() && count < hastar_hp->max_iterations) {
+        count += 1;
         // get the lowest total cost node and add it to close list
         pop_heap(openlist.begin(), openlist.end());
         HybridAStarPoint x = openlist.back();
         openlist.pop_back();
         closelist.push_back(x);
-
         // construct Dubin's path to end
         Dubins dbp(x.pose, map_info->end, hastar_hp->radius);
         DubinsPath shortest_dp = dbp.getShortestPath();
@@ -111,7 +116,6 @@ vector<Pose> HybridAStar::runHybridAStar() {
             best_pose = x.pose;
             break;
         }
-
         // unable to connect to end, explore Dubin's neighbors
         vector<DubinsPath> neighbors = getNeighbors(x.pose);
         for (auto neighbor : neighbors) {
@@ -127,12 +131,14 @@ vector<Pose> HybridAStar::runHybridAStar() {
                             distance(p.pose, y) < hastar_hp->completion_threshold
                         );
                     }) != closelist.end()
-                )
+                ) {
                 continue;
+            }
 
             if (isCollision(neighbor_path)) {
                 continue;
             }
+
             // update current heuristic cost
             double tentative_g_score = x.g;
             if (neighbor[0].first == direction_t::straight)

@@ -30,6 +30,7 @@ class HybridAStarReturnValues(Structure):
 class HybridAStarHyperparameters(Structure):
     _fields_ = [
         ("step_size", c_double),
+        ("max_iterations", c_int),
         ("completion_threshold", c_double),
         ("angle_completion_threshold", c_double),
         ("rad_step", c_double),
