@@ -44,6 +44,7 @@ def apply_hybrid_astar(initial_conditions, hyperparameters):
 
         hyperparameters (dict): a dict of optional hyperparameters
             step_size (float): sampling distance [m]
+            max_iterations (float): maximum number of iterations
             completion_threshold (float): threshold to end position [m]
             angle_completion_threshold (float): threshold to end yaw [rad]
             rad_step (float): turning sampling discretization [rad]
@@ -55,11 +56,11 @@ def apply_hybrid_astar(initial_conditions, hyperparameters):
             car_length (float): length of car [m]
             car_width (float): width of car [m]
     Returns:
-        x_path (np.ndarray(float)): x positions of RRT*, if it exists
-        y_path (np.ndarray(float)): y positions of RRT*, if it exists
-        success (bool): whether RRT* was successful
+        x_path (np.ndarray(float)): x positions of Hybrid A*, if it exists
+        y_path (np.ndarray(float)): y positions of Hybrid A*, if it exists
+        success (bool): whether Hybrid A* was successful
     """
-    # convert initial conditions to rrtstar format
+    # convert initial conditions to hybrid a* format
     hastar_ic = to_hastar_initial_conditions(initial_conditions)
 
     # parse hyperparameters

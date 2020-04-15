@@ -6,9 +6,9 @@ import matplotlib.patches as patch
 
 
 def main():
-    """A debug script for the rrt star planner.
+    """A debug script for the hybrid astar planner.
 
-    This script will solve the rrt star problem in a
+    This script will solve the hybrid astar problem in a
     standalone simulation and visualize the results or raise an error if a
     path is not found.
     """
