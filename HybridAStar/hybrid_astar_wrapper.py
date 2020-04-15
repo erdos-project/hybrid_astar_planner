@@ -9,7 +9,7 @@ try:
         HybridAStarHyperparameters, HybridAStarReturnValues, MAX_PATH_LENGTH
 
 except:
-    from pylot.planning.hybrid_astar.hybrid_astar_planner.HybridAStarPlanner\
+    from pylot.planning.hybrid_astar.hybrid_astar_planner.HybridAStar \
         .py_cpp_struct \
         import HybridAStarInitialConditions, HybridAStarHyperparameters, \
         HybridAStarReturnValues, MAX_PATH_LENGTH
