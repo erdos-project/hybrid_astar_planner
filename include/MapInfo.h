@@ -1,12 +1,8 @@
 #ifndef HYBRID_ASTAR_PLANNER_MAPINFO_H
 #define HYBRID_ASTAR_PLANNER_MAPINFO_H
 
-<<<<<<< HEAD
 #include "Car.h"
 #include "py_cpp_struct.h"
-=======
-#include "include/Car.h"
->>>>>>> upstream/master
 #include "Obstacle.h"
 #include "utils.h"
 

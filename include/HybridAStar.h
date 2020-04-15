@@ -1,12 +1,8 @@
 #ifndef HYBRID_ASTAR_PLANNER_HYBRIDASTAR_H
 #define HYBRID_ASTAR_PLANNER_HYBRIDASTAR_H
 
-<<<<<<< HEAD
 #include "Dubins.h"
 #include "py_cpp_struct.h"
-=======
-#include "include/Dubins.h"
->>>>>>> upstream/master
 #include "MapInfo.h"
 #include "utils.h"
 

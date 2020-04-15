@@ -1,8 +1,4 @@
 #include "include/MapInfo.h"
-<<<<<<< HEAD
-=======
-#include "include/constants.h"
->>>>>>> upstream/master
 
 #include <utility>
 
