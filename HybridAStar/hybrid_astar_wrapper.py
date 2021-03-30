@@ -9,15 +9,14 @@ try:
         HybridAStarHyperparameters, HybridAStarReturnValues, MAX_PATH_LENGTH
 
 except:
-    from pylot.planning.hybrid_astar.hybrid_astar_planner.HybridAStar \
-        .py_cpp_struct \
+    from hybrid_astar_planner.HybridAStar.py_cpp_struct \
         import HybridAStarInitialConditions, HybridAStarHyperparameters, \
         HybridAStarReturnValues, MAX_PATH_LENGTH
 
 try:
     cdll = CDLL("build/libHybridAStar.so")
 except:
-    cdll = CDLL("{}/pylot/planning/hybrid_astar/hybrid_astar_planner/"
+    cdll = CDLL("{}/dependencies/hybrid_astar_planner/"
                 "build/libHybridAStar.so".format(os.getenv("PYLOT_HOME")))
 _c_double_p = POINTER(c_double)
 
