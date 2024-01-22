@@ -6,8 +6,8 @@
 
 using namespace std;
 
-typedef vector<double> Point;
-typedef vector<double> Pose;
+typedef vector<double> Point; //* range analysis for position
+typedef vector<double> Pose; //* range analysis for position
 
 enum direction_t {left='l', straight='s', right='r'};
 
