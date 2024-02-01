@@ -33,9 +33,9 @@ vector<DubinsPath> HybridAStar::getNeighbors(Pose &p) {
             continue;
         }
         DubinsPath dpl (1, make_pair(direction_t::left,
-            abs(hastar_hp->step_size / rad)));
+            Dubins::mod2Pi(abs(hastar_hp->step_size / rad))));
         DubinsPath dpr (1, make_pair(direction_t::right,
-            abs(hastar_hp->step_size / rad)));
+            Dubins::mod2Pi(abs(hastar_hp->step_size / rad))));
         paths.push_back(dpl);
         paths.push_back(dpr);
         rad -= hastar_hp->rad_step;

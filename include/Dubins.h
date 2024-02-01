@@ -19,10 +19,10 @@ public:
     vector<DubinsPoint> getShortestPath();
     static vector<Pose> generatePath(Pose s, vector<DubinsPoint> path,
             double radius);
+    static double mod2Pi(double theta);
 private:
     Pose start, end;
     double radius;
-    static double mod2Pi(double theta);
     Pose calcEnd();
     vector<DubinsPoint> calcLSL(Pose e);
     vector<DubinsPoint> calcRSR(Pose e);
